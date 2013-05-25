@@ -1,3 +1,5 @@
+var Mustache = require('mustache');
+
 Game = function() {
   var self = this;
 
@@ -19,10 +21,11 @@ Game = function() {
     this.ticks += 1;
 
     if (!this.lastPrintTime || new Date() - this.lastPrintTime > 1000) {
-      var msg = (this.thisTickTime / 1000).toString() + ": ";
-      msg += this.ticks.toString() + " ticks. (";
-      msg += (this.thisTickTime - this.lastPrintTime).toString() + " ms "
-      msg += "since last print)."
+      var msg = Mustache.render("{{ts}}: {{ticks}} ticks. ({{ms}} ms since last print).", {
+        ts: this.thisTickTime / 1000,
+        ticks: this.ticks,
+        ms: this.thisTickTime - this.lastPrintTime
+      });
       console.log(msg);
 
       this.lastPrintTime = this.thisTickTime;
