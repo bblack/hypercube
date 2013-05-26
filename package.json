@@ -1,0 +1,9 @@
+{
+  "name": "hypercube",
+  "version": "0.0.0",
+  "dependencies": {
+    "mustache": "*",
+    "socket.io": "*",
+    "underscore": "*"
+  }
+}
