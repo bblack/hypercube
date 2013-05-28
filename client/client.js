@@ -57,15 +57,46 @@ var Client = function() {
   };
 
   this.tick = function() {
-    var predictedFrame = self.predictFrame();
+    var interpFrame = self.interpFrame();
 
-    $.each(predictedFrame.players, function(i,p){
+    $.each(interpFrame.players, function(i,p){
       if (!self.game.players[p.id]) {
         self.game.addPlayer(p);
         self.drawer.addPlayer(p);
       }
       self.drawer.updatePlayer(p);
     });
+  };
+
+  this.interpFrame = function() {
+    var oldFrame = self.lastFewUpdates[1];
+    if (!oldFrame) { return {players: []}; }
+
+    var newFrame = self.lastFewUpdates[0];
+    if (!newFrame) { return oldFrame; }
+
+    var timeDiff = newFrame.time - oldFrame.time;
+    var now = Date.now();
+    var interpFrame = {players: []};
+    var oldPlayers = {}; // just for quick lookup
+
+    $.each(oldFrame.data.players, function(i,p){ oldPlayers[p.id] = p; });
+    $.each(newFrame.data.players, function(i,newPlayer){
+      var oldPlayer = oldPlayers[newPlayer.id];
+      if (oldPlayer) {
+        interpFrame.players.push(
+          $.extend({}, newPlayer, {
+            orientAngle: newPlayer.orientAngle + ((newPlayer.orientAngle - oldPlayer.orientAngle) / timeDiff) * (now - newFrame.time),
+            position: [
+              oldPlayer.position[0] + ((newPlayer.position[0] - oldPlayer.position[0]) / timeDiff) * (now - newFrame.time),
+              oldPlayer.position[1] + ((newPlayer.position[1] - oldPlayer.position[1]) / timeDiff) * (now - newFrame.time)
+            ]
+          })
+        );
+      }
+    });
+
+    return interpFrame;
   };
 
   this.predictFrame = function() {
