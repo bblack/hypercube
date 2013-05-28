@@ -43,7 +43,7 @@ function Game() {
 
   this.tickHandle;
   this.players = {};
-  this.fps = 30;
+  this.fps = 20;
   this.frameDuration = 1000 / this.fps;
 
   this.ticks = 0;

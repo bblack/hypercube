@@ -2,6 +2,7 @@ var Game = function() {
   var self = this;
 
   this.players = {};
+  this.fps = 60;
 
   this.addPlayer = function(p) {
     this.players[p.id] = p;
