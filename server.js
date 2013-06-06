@@ -22,8 +22,8 @@ var Server = function() {
     });
   }
 
-  this.startListening = function() {
-    this.io = socketio.listen(9090);
+  this.startListening = function(server) {
+    this.io = socketio.listen(server);
     this.io.set('log level', 1);
 
     this.io.sockets.on('connection', function(socket){
@@ -58,8 +58,6 @@ var Server = function() {
       socket.on('-right', function(){ player.right = false; });
     });
   }
-}
+};
 
-var server = new Server();
-server.startGame();
-server.startListening();
+module.exports = {"Server": Server};

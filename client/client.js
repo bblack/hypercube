@@ -9,7 +9,7 @@ var Client = function() {
       self.drawer.status('could not connect');
       return;
     }
-    this.socket = io.connect('http://localhost:9090');
+    this.socket = io.connect('http://' + window.location.host);
     this.connectTime = Date.now();
     this.lastFewUpdates = [];
 
