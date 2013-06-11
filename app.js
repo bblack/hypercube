@@ -13,4 +13,5 @@ app.configure(function(){
 
 gameServer.startGame();
 gameServer.startListening(httpServer);
-httpServer.listen(1991);
+var port = process.env.PORT || 80;
+httpServer.listen(port);
