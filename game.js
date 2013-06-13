@@ -8,6 +8,7 @@ var Player = function() {
 
   this.id = Math.floor(Math.random() * 1000000).toString();
   this.position = [0, 0];
+  this.velocity = [0, 0];
   this.orientAngle = 0;
   this.forward = false;
   this.back = false;
@@ -22,12 +23,12 @@ var Player = function() {
     self.orientAngle = (self.orientAngle + angle) % (2*Math.PI);
   }
 
-  this.velocity = function() {
-    // units per sec
+  this.accel = function() {
+    // units per sec per sec
     var out = [0, 0];
-    var maxSpeed = 200;
-    if (self.forward) { out[0] += maxSpeed; }
-    if (self.back) { out[0] -= maxSpeed; }
+    var maxAccel = 50;
+    if (self.forward) { out[0] += maxAccel; }
+    if (self.back) { out[0] -= maxAccel; }
 
     out = [
       Math.cos(self.orientAngle)*out[0] - Math.sin(self.orientAngle)*out[1],
@@ -43,7 +44,7 @@ function Game() {
 
   this.tickHandle;
   this.players = {};
-  this.fps = 20;
+  this.fps = 10;
   this.frameDuration = 1000 / this.fps;
 
   this.ticks = 0;
@@ -74,7 +75,16 @@ function Game() {
       if (p.right) { p.orientAngle -= Math.PI / self.fps; }
       p.orientAngle = p.orientAngle % (2*Math.PI);
 
-      var v = p.velocity();
+      p.velocity[0] += p.accel()[0];
+      p.velocity[1] += p.accel()[1];
+      // cap abs(v)
+      var vAbs = Math.sqrt(Math.pow(p.velocity[0], 2) + Math.pow(p.velocity[1], 2));
+      if (vAbs > 200) {
+        p.velocity[0] = p.velocity[0] * (200 / vAbs);
+        p.velocity[1] = p.velocity[1] * (200 / vAbs);
+      }
+
+      var v = p.velocity;
       p.position[0] += (v[0] / self.fps);
       p.position[1] += (v[1] / self.fps);
       p.position[0] = Math.max(p.position[0], 0);

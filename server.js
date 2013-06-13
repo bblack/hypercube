@@ -16,7 +16,14 @@ var Server = function() {
       _.each(_.keys(self.playersBySocketId), function(sid){
         var socket = self.socketsBySocketId[sid];
         socket.emit('tick', {
-          players: self.game.players
+          players: _.map(self.game.players, function(p){
+            return {
+              id: p.id,
+              position: [Math.round(p.position[0]), Math.round(p.position[1])], // rounding since it saves space in json
+              orientAngle: p.orientAngle,
+              color: p.color
+            };
+          })
         });
       });
     });
