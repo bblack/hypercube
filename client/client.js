@@ -84,9 +84,23 @@ var Client = function() {
     $.each(newFrame.data.players, function(i,newPlayer){
       var oldPlayer = oldPlayers[newPlayer.id];
       if (oldPlayer) {
+
+        // attempt to detect that the angle has crossed the 0/2pi line
+        // rather than making an almost full circle in one tick
+        var newAngle = newPlayer.orientAngle;
+        var oldAngle = oldPlayer.orientAngle;
+        if (Math.abs(newAngle - oldAngle) > Math.PI) {
+          if (newAngle < oldAngle) {
+            newAngle += 2*Math.PI;
+          } else {
+            oldAngle += 2*Math.PI;
+          }
+        } 
+
         interpFrame.players.push(
+          // To do extrap instead of interp, just replace "old + delta" with "new + delta"
           $.extend({}, newPlayer, {
-            orientAngle: newPlayer.orientAngle + ((newPlayer.orientAngle - oldPlayer.orientAngle) / timeDiff) * (now - newFrame.time),
+            orientAngle: oldAngle + ((newAngle - oldAngle) / timeDiff) * (now - newFrame.time),
             position: [
               oldPlayer.position[0] + ((newPlayer.position[0] - oldPlayer.position[0]) / timeDiff) * (now - newFrame.time),
               oldPlayer.position[1] + ((newPlayer.position[1] - oldPlayer.position[1]) / timeDiff) * (now - newFrame.time)
@@ -97,37 +111,6 @@ var Client = function() {
     });
 
     return interpFrame;
-  };
-
-  this.predictFrame = function() {
-    var oldFrame = self.lastFewUpdates[1];
-    if (!oldFrame) { return {players: []}; }
-
-    var newFrame = self.lastFewUpdates[0];
-    if (!newFrame) { return oldFrame; }
-
-    var timeDiff = newFrame.time - oldFrame.time;
-    var now = Date.now();
-    var extrapolatedFrame = {players: []};
-    var oldPlayers = {}; // just for quick lookup
-
-    $.each(oldFrame.data.players, function(i,p){ oldPlayers[p.id] = p; });
-    $.each(newFrame.data.players, function(i,newPlayer){
-      var oldPlayer = oldPlayers[newPlayer.id];
-      if (oldPlayer) {
-        extrapolatedFrame.players.push(
-          $.extend({}, newPlayer, {
-            orientAngle: newPlayer.orientAngle + ((newPlayer.orientAngle - oldPlayer.orientAngle) / timeDiff) * (now - newFrame.time),
-            position: [
-              newPlayer.position[0] + ((newPlayer.position[0] - oldPlayer.position[0]) / timeDiff) * (now - newFrame.time),
-              newPlayer.position[1] + ((newPlayer.position[1] - oldPlayer.position[1]) / timeDiff) * (now - newFrame.time)
-            ]
-          })
-        );
-      }
-    });
-
-    return extrapolatedFrame;
   };
 
   this.printIncomingTickRate = function() {
