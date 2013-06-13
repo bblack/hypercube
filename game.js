@@ -7,7 +7,7 @@ var Player = function() {
   var self = this;
 
   this.id = Math.floor(Math.random() * 1000000).toString();
-  this.position = [0, 0];
+  this.position = [300, 300];
   this.velocity = [0, 0];
   this.orientAngle = 0;
   this.forward = false;
