@@ -24,7 +24,8 @@ var Drawer = function() {
   $(window).resize(self.fitCanvasToWindow);
   $(window).resize();
   this.statusEl = this.paper.text(300, 580, 'status unknown')
-    .attr('fill', 'gray').attr('font-size', '20');
+    .attr('fill', 'gray')
+    .attr('font-size', '20');
   this.players = {} // player id => {name: element}
 
   this.clear = function() {
@@ -33,8 +34,11 @@ var Drawer = function() {
     });
   }
 
-  this.status = function(text) {
-    return self.statusEl.attr('text', text);
+  this.status = function(text, color) {
+    self.statusEl.attr('text', text || '');
+    self.statusEl.attr('fill', color || 'gray');
+    $(self.statusEl.node).css('text-shadow', color + ' 0 0 20px');
+    return self.statusEl;
   }
 
   this.addPlayer = function(p) {

@@ -6,7 +6,7 @@ var Client = function() {
     this.game = new Game();
     if (this.socket) { throw 'already connected'; }
     try { io; } catch (Exception) {
-      self.drawer.status('could not connect');
+      self.drawer.status('could not connect', 'red');
       return;
     }
     this.socket = io.connect('http://' + window.location.host);
@@ -15,11 +15,11 @@ var Client = function() {
 
     this.socket.on('connect', function(){
       self.drawer.clear();
-      self.drawer.status('connected').attr('fill', 'green');
+      self.drawer.status('connected', 'lime');
     });
 
     this.socket.on('disconnect', function(){
-      self.drawer.status('disconnected').attr('fill', 'orange');
+      self.drawer.status('disconnected', 'orange');
     });
 
     this.socket.on('welcome', function(data){
