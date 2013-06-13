@@ -38,19 +38,16 @@ var Drawer = function() {
   }
 
   this.addPlayer = function(p) {
-    var pel = this.paper.circle(0, 0, 10);
-    var oel = this.paper.path("M0,0L50,0");
-
-    pel.attr('fill', p.color);
-    pel.attr('stroke', 'white');
-
-    oel.attr('stroke-width', 1);
-    oel.attr('stroke', 'white');
+    var pel = this.paper.path("M-5,-10L0,0L-5,10L20,0Z");
+    pel.attr('stroke', p.color);
+    // pel.attr('stroke-width', 0);
+    var gel = pel.glow({color: p.color});
 
     this.players[p.id] = {
       pel: pel,
-      oel: oel,
-    }
+      gel: gel
+    };
+
     $.each(this.players[p.id], function(name, el){
       el.transform('m1,0,0,-1,0,600'); // server is Y+ to mean 'up'
     });
@@ -66,16 +63,14 @@ var Drawer = function() {
 
   this.updatePlayer = function(p) {
     var pel = this.players[p.id].pel;
-    var oel = this.players[p.id].oel;
+    var gel = this.players[p.id].gel;
 
-    pel.attr('cx', p.position[0]);
-    pel.attr('cy', p.position[1]);
-
-    oel.attr('path', Mustache.render("M{{x1}},{{y1}}L{{x2}},{{y2}}", {
-      x1: p.position[0],
-      y1: p.position[1],
-      x2: p.position[0] + 20 * Math.cos(p.orientAngle),
-      y2: p.position[1] + 20 * Math.sin(p.orientAngle)
-    }));
+    $.each([pel, gel], function(i,el){
+      el.transform(Mustache.render("m1,0,0,-1,0,600t{{x}},{{y}}r{{r}},0,0", {
+        x: p.position[0],
+        y: p.position[1], 
+        r: Raphael.deg(p.orientAngle)
+      }));
+    });
   }
 };
