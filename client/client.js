@@ -97,6 +97,13 @@ var Client = function() {
           }
         } 
 
+        if (timeDiff == 0) {
+          console.warn('Tried to interp two frames with no time diff');
+          // This happens if incoming packets get choked up and then rcvd
+          // virtually simultaneously. To fix, have server include its own timestamp.
+          // Server time should then only be used for calculating time diffs.
+        }
+
         interpFrame.players.push(
           // To do extrap instead of interp, just replace "old + delta" with "new + delta"
           $.extend({}, newPlayer, {
