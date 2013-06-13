@@ -10,6 +10,16 @@ var Server = function() {
   this.playersBySocketId = {}; // keyed on socket.id
   this.socketsBySocketId = {}; // keyed on socket.id
 
+  this.playerUpdateMsg = function(p) {
+    return {
+      id: p.id,
+      position: [Math.round(p.position[0]), Math.round(p.position[1])], // rounding since it saves space in json
+      orientAngle: p.orientAngle,
+      a: p.forward || p.back,
+      color: p.color
+    };
+  };
+
   this.startGame = function() {
     this.game.run();
     this.game.on('tick', function(){
@@ -17,12 +27,7 @@ var Server = function() {
         var socket = self.socketsBySocketId[sid];
         socket.emit('tick', {
           players: _.map(self.game.players, function(p){
-            return {
-              id: p.id,
-              position: [Math.round(p.position[0]), Math.round(p.position[1])], // rounding since it saves space in json
-              orientAngle: p.orientAngle,
-              color: p.color
-            };
+            return self.playerUpdateMsg(p);
           })
         });
       });
@@ -44,7 +49,7 @@ var Server = function() {
       // Tell client about current game state
       _.each(_.keys(self.game.players), function(pid) {
         var otherPlayer = self.game.players[pid];
-        socket.emit('player_present', otherPlayer);
+        socket.emit('player_present', self.playerUpdateMsg(otherPlayer));
       });
 
       // Listen forever for client commands

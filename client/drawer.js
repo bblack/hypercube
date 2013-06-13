@@ -75,6 +75,8 @@ var Drawer = function() {
         y: p.position[1], 
         r: Raphael.deg(p.orientAngle)
       }));
+
+      pel.attr('fill', p.a ? p.color : '');
     });
   }
 };
