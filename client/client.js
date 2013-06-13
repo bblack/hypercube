@@ -163,6 +163,7 @@ var Client = function() {
       keypress.register_combo({
         keys: k,
         on_keyup: function(){ self.socket.emit(inverseCmd); },
+        prevent_default: true,
         prevent_repeat: true
       });
     }

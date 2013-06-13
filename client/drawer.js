@@ -1,7 +1,28 @@
 var Drawer = function() {
   var self = this;
 
-  this.paper = Raphael($("#canvas")[0], 600, 600);
+  this.fitCanvasToWindow = function() {
+    var winW = $(window).width();
+    var winH = $(window).height();
+    self.paper.setSize(winW, winH);
+    if (winW > winH) {
+      self.paper.setViewBox(
+        0 - (winW / winH - 1.0)*600/2,
+        0,
+        (winW / winH)*600,
+        600)
+    } else {
+      self.paper.setViewBox(
+        0,
+        0 - (winH / winW - 1.0)*600/2,
+        600,
+        (winH / winW)*600)
+    }
+  };
+
+  this.paper = Raphael(0, 0, 600, 600);
+  $(window).resize(self.fitCanvasToWindow);
+  $(window).resize();
   this.statusEl = this.paper.text(300, 580, 'status unknown')
     .attr('fill', 'gray').attr('font-size', '20');
   this.players = {} // player id => {name: element}
