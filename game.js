@@ -21,22 +21,7 @@ var Player = function() {
 
   this.rotate = function(angle) {
     self.orientAngle = (self.orientAngle + angle) % (2*Math.PI);
-  }
-
-  this.accel = function() {
-    // units per sec per sec
-    var out = [0, 0];
-    var maxAccel = 50;
-    if (self.forward) { out[0] += maxAccel; }
-    if (self.back) { out[0] -= maxAccel; }
-
-    out = [
-      Math.cos(self.orientAngle)*out[0] - Math.sin(self.orientAngle)*out[1],
-      Math.sin(self.orientAngle)*out[0] + Math.cos(self.orientAngle)*out[1]
-    ];
-
-    return out;
-  }
+  };
 }
 
 function Game() {
@@ -75,18 +60,49 @@ function Game() {
       if (p.right) { p.orientAngle -= Math.PI / self.fps; }
       p.orientAngle = p.orientAngle % (2*Math.PI);
 
-      p.velocity[0] += p.accel()[0];
-      p.velocity[1] += p.accel()[1];
+      // calc accel (units per sec per sec)
+      p.accel = [0, 0];
+      if (p.forward) { p.accel[0] += 50; }
+      if (p.back) { p.accel[0] -= 50; }
+      p.accel = [
+        Math.cos(p.orientAngle)*p.accel[0] - Math.sin(p.orientAngle)*p.accel[1],
+        Math.sin(p.orientAngle)*p.accel[0] + Math.cos(p.orientAngle)*p.accel[1]
+      ];
+
+      // player @ map edge?
+      if ((p.position[0] <= 0 && p.accel[0] < 0) ||
+          (p.position[0] >= 600 && p.accel[0] > 0)) {
+        p.accel[0] = 0;
+      }
+      if ((p.position[1] <= 0 && p.accel[1] < 0) ||
+          (p.position[1] >= 600 && p.accel[1] > 0)) {
+        p.accel[1] = 0;
+      }
+
+      // calc velo
+      p.velocity[0] += p.accel[0];
+      p.velocity[1] += p.accel[1];
       // cap abs(v)
       var vAbs = Math.sqrt(Math.pow(p.velocity[0], 2) + Math.pow(p.velocity[1], 2));
       if (vAbs > 200) {
         p.velocity[0] = p.velocity[0] * (200 / vAbs);
         p.velocity[1] = p.velocity[1] * (200 / vAbs);
       }
+      // player @ map edge?
+      if ((p.position[0] <= 0 && p.velocity[0] < 0) ||
+          (p.position[0] >= 600 && p.velocity[0] > 0)) {
+        p.velocity[0] = 0;
+      }
+      if ((p.position[1] <= 0 && p.velocity[1] < 0) ||
+          (p.position[1] >= 600 && p.velocity[1] > 0)) {
+        p.velocity[1] = 0;
+      }
 
+      // calc pos
       var v = p.velocity;
       p.position[0] += (v[0] / self.fps);
       p.position[1] += (v[1] / self.fps);
+      // player @ map edge?
       p.position[0] = Math.max(p.position[0], 0);
       p.position[0] = Math.min(p.position[0], 600);
       p.position[1] = Math.max(p.position[1], 0);
