@@ -2,8 +2,8 @@ var Drawer = function() {
   var self = this;
 
   this.fitCanvasToWindow = function() {
-    var winW = $(window).width();
-    var winH = $(window).height();
+    var winW = window.innerWidth;
+    var winH = window.innerHeight;
     self.paper.setSize(winW, winH);
     if (winW > winH) {
       self.paper.setViewBox(
