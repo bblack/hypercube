@@ -22,8 +22,40 @@
         background-color: black;
         background-image: url('back.png');
       }
+
+      #con {
+        display: none; /* start hidden */
+        position: absolute;
+        width: 100%;
+        font-family: monospace;
+        background-color: rgba(0, 128, 0, .5);
+        color: green;
+        z-index: 1; /* because raphael puts <svg> after (in front of) everything */
+      }
+
+      #con_out {
+        padding: .5em;
+        height: 10em;
+        overflow-y: scroll;
+      }
+
+      #con_in {
+        width: 100%;
+        padding: .5em;
+        font-family: monospace;
+        background-color: rgba(0, 0, 0, 0);
+        color: green;
+        border-left: none;
+        border-right: none;
+        border-bottom: none;
+        border-top: 1px solid green;
+      }
     </style>
   </head>
   <body>
+    <div id='con'>
+      <div id='con_out'></div>
+      <input id='con_in' type='text' ></input>
+    </div>
   </body>
 </html>
