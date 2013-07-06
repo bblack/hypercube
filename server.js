@@ -42,8 +42,8 @@ var Server = function() {
       self.socketsBySocketId[socket.id] = socket;
 
       // Negotiation
-      socket.emit('welcome', 'hypercube');
       var player = self.game.newPlayer();
+      socket.emit('welcome', {playerId: player.id});
       self.playersBySocketId[socket.id] = player;
 
       // Tell client about current game state

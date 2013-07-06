@@ -2,7 +2,7 @@ var Client = function() {
   var self = this;
 
   this.connect = function() {
-    this.drawer = new Drawer();
+    this.drawer = new Drawer(self);
     this.game = new Game();
     if (this.socket) { throw 'already connected'; }
     try { io; } catch (Exception) {
@@ -23,6 +23,7 @@ var Client = function() {
     });
 
     this.socket.on('welcome', function(data){
+      self.playerId = data.playerId;
       console.log('server said welcome');
     });
 
