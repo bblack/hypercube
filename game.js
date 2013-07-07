@@ -32,6 +32,9 @@ function Game() {
   this.fps = 10;
   this.frameDuration = 1000 / this.fps;
 
+  this.bboxMin = [-Math.pow(10, 6), -Math.pow(10, 6)];
+  this.bboxMax = [Math.pow(10, 6), Math.pow(10, 6)];
+
   this.ticks = 0;
 
   this.run = function() {
@@ -70,12 +73,12 @@ function Game() {
       ];
 
       // player @ map edge?
-      if ((p.position[0] <= 0 && p.accel[0] < 0) ||
-          (p.position[0] >= 600 && p.accel[0] > 0)) {
+      if ((p.position[0] <= self.bboxMin[0] && p.accel[0] < 0) ||
+          (p.position[0] >= self.bboxMax[0] && p.accel[0] > 0)) {
         p.accel[0] = 0;
       }
-      if ((p.position[1] <= 0 && p.accel[1] < 0) ||
-          (p.position[1] >= 600 && p.accel[1] > 0)) {
+      if ((p.position[1] <= self.bboxMin[1] && p.accel[1] < 0) ||
+          (p.position[1] >= self.bboxMax[1] && p.accel[1] > 0)) {
         p.accel[1] = 0;
       }
 
@@ -89,12 +92,12 @@ function Game() {
         p.velocity[1] = p.velocity[1] * (200 / vAbs);
       }
       // player @ map edge?
-      if ((p.position[0] <= 0 && p.velocity[0] < 0) ||
-          (p.position[0] >= 600 && p.velocity[0] > 0)) {
+      if ((p.position[0] <= self.bboxMin[0] && p.velocity[0] < 0) ||
+          (p.position[0] >= self.bboxMax[0] && p.velocity[0] > 0)) {
         p.velocity[0] = 0;
       }
-      if ((p.position[1] <= 0 && p.velocity[1] < 0) ||
-          (p.position[1] >= 600 && p.velocity[1] > 0)) {
+      if ((p.position[1] <= self.bboxMin[1] && p.velocity[1] < 0) ||
+          (p.position[1] >= self.bboxMax[1] && p.velocity[1] > 0)) {
         p.velocity[1] = 0;
       }
 
@@ -103,10 +106,10 @@ function Game() {
       p.position[0] += (v[0] / self.fps);
       p.position[1] += (v[1] / self.fps);
       // player @ map edge?
-      p.position[0] = Math.max(p.position[0], 0);
-      p.position[0] = Math.min(p.position[0], 600);
-      p.position[1] = Math.max(p.position[1], 0);
-      p.position[1] = Math.min(p.position[1], 600);
+      p.position[0] = Math.max(p.position[0], self.bboxMin[0]);
+      p.position[0] = Math.min(p.position[0], self.bboxMax[0]);
+      p.position[1] = Math.max(p.position[1], self.bboxMin[1]);
+      p.position[1] = Math.min(p.position[1], self.bboxMax[1]);
     });
 
     self.emit('tick');
@@ -117,6 +120,10 @@ function Game() {
 
   this.newPlayer = function() {
     var p = new Player();
+    p.position = [
+       self.bboxMin[0] + (self.bboxMax[0] - self.bboxMin[0]) / 2,
+       self.bboxMin[1] + (self.bboxMax[1] - self.bboxMin[1]) / 2
+    ];
     if (this.players[p.id]) { throw "player id collision"; }
     this.players[p.id] = p;
     return p;
