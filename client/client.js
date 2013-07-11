@@ -59,14 +59,16 @@ var Client = function() {
 
   this.tick = function() {
     var interpFrame = self.interpFrame();
-
+    
     $.each(interpFrame.players, function(i,p){
       if (!self.game.players[p.id]) {
         self.game.addPlayer(p);
+        // TODO: have drawer listen and do this itself
         self.drawer.addPlayer(p);
       }
-      self.drawer.updatePlayer(p);
     });
+
+    self.drawer.draw(interpFrame);
   };
 
   this.interpFrame = function() {
