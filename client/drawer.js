@@ -27,6 +27,7 @@ var Drawer = function() {
     .attr('fill', 'gray')
     .attr('font-size', '20');
   this.players = {} // player id => {name: element}
+  this.rocks = {} // rock id => element
 
   this.clear = function() {
     $.each(this.players, function(pid, p){
@@ -46,17 +47,30 @@ var Drawer = function() {
     pel.attr('stroke', p.color);
     // pel.attr('stroke-width', 0);
     var gel = pel.glow({color: p.color});
+    var label = this.paper.text(0, 0, '');
+    label.attr('fill', 'white');
+    label.attr('font-family', 'monospace');
 
     this.players[p.id] = {
       pel: pel,
-      gel: gel
+      gel: gel,
+      label: label
     };
 
-    $.each(this.players[p.id], function(name, el){
-      el.transform('m1,0,0,-1,0,600'); // server is Y+ to mean 'up'
-    });
-
     this.updatePlayer(p);
+  }
+
+  this.addRock = function(r){
+    var path = 'M';
+    r.verts.forEach(function(vert, i){
+      path += (vert[0] + r.position[0]) + ',' +
+        (vert[1] + r.position[1]) +
+        (i == r.verts.length - 1 ? 'Z' : 'L');
+    })
+    var el = this.paper.path(path)
+    el.attr('stroke', 'white')
+    // el.transform('')
+    this.rocks[r.id] = r;
   }
 
   this.removePlayer = function(pid) {
@@ -68,15 +82,24 @@ var Drawer = function() {
   this.updatePlayer = function(p) {
     var pel = this.players[p.id].pel;
     var gel = this.players[p.id].gel;
+    var label = this.players[p.id].label;
+
+    label.attr('text', p.position[0].toFixed(2) + ', ' + p.position[1].toFixed(2));
+    label.attr('x', p.position[0])
+    label.attr('y', 600-p.position[1])
 
     $.each([pel, gel], function(i,el){
       el.transform(Mustache.render("m1,0,0,-1,0,600t{{x}},{{y}}r{{r}},0,0", {
         x: p.position[0],
-        y: p.position[1], 
+        y: p.position[1],
         r: Raphael.deg(p.orientAngle)
       }));
 
       pel.attr('fill', p.a ? p.color : '');
     });
+  }
+
+  this.updateRock = function(r){
+
   }
 };

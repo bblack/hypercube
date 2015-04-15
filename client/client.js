@@ -66,6 +66,14 @@ var Client = function() {
       }
       self.drawer.updatePlayer(p);
     });
+
+    $.each(interpFrame.rocks, function(i,r){
+      if (!self.game.rocks[r.id]) {
+        self.game.addRock(r);
+        self.drawer.addRock(r);
+      }
+      // self.drawer.updateRock(r);
+    })
   };
 
   this.interpFrame = function() {
@@ -95,7 +103,7 @@ var Client = function() {
           } else {
             oldAngle += 2*Math.PI;
           }
-        } 
+        }
 
         if (timeDiff == 0) {
           console.warn('Tried to interp two frames with no time diff');
@@ -116,6 +124,8 @@ var Client = function() {
         );
       }
     });
+
+    interpFrame.rocks = newFrame.data.rocks;
 
     return interpFrame;
   };

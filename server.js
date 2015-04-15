@@ -13,12 +13,20 @@ var Server = function() {
   this.playerUpdateMsg = function(p) {
     return {
       id: p.id,
-      position: [Math.round(p.position[0]), Math.round(p.position[1])], // rounding since it saves space in json
+      position: p.position.map(Math.round),
       orientAngle: p.orientAngle,
       a: p.forward || p.back,
       color: p.color
     };
   };
+
+  this.rockUpdateMsg = function(r){
+    return {
+      id: r.id,
+      position: r.position.map(Math.round),
+      verts: r.verts
+    }
+  }
 
   this.startGame = function() {
     this.game.run();
@@ -28,6 +36,9 @@ var Server = function() {
         socket.emit('tick', {
           players: _.map(self.game.players, function(p){
             return self.playerUpdateMsg(p);
+          }),
+          rocks: _.map(self.game.rocks, function(r){
+            return self.rockUpdateMsg(r);
           })
         });
       });

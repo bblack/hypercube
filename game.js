@@ -24,11 +24,25 @@ var Player = function() {
   };
 }
 
+var Rock = function(){
+  this.id = 99;
+  this.verts = [];
+  var points = 8;
+  for (var i=0; i<points; i++) {
+    var r = 50;
+    var x = Math.floor( Math.sin(2*Math.PI * i / points) * r )
+    var y = Math.floor( Math.cos(2*Math.PI * i / points) * r )
+    this.verts.push([x, y]);
+  }
+  this.position = [100,100]
+}
+
 function Game() {
   var self = this;
 
   this.tickHandle;
   this.players = {};
+  this.rocks = {};
   this.fps = 10;
   this.frameDuration = 1000 / this.fps;
 
@@ -37,6 +51,9 @@ function Game() {
   this.run = function() {
     if (this.tickHandle) { throw 'Already running'; }
     this.tickHandle = setInterval(function(){ self.tick(); }, this.frameDuration);
+
+    var rock = new Rock();
+    this.rocks[rock.id] = rock;
   }
 
   this.tick = function() {

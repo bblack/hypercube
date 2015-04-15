@@ -2,7 +2,12 @@ var Game = function() {
   var self = this;
 
   this.players = {};
+  this.rocks = {};
   this.fps = 60;
+
+  this.addRock = function(r){
+    this.rocks[r.id] = r;
+  }
 
   this.addPlayer = function(p) {
     this.players[p.id] = p;
