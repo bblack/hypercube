@@ -73,6 +73,14 @@ var Drawer = function() {
     this.rocks[r.id] = r;
   }
 
+  this.addEntity = function(e){
+    if (e.type == 'player') {
+      this.addPlayer(e);
+    } else if (e.type == 'rock') {
+      this.addRock(e);
+    }
+  }
+
   this.removePlayer = function(pid) {
     var pels = this.players[pid];
     $.each(pels, function(name, el){ el.remove(); });
@@ -101,5 +109,11 @@ var Drawer = function() {
 
   this.updateRock = function(r){
 
+  }
+
+  this.updateEntity = function(e){
+    if (e.type === 'player') {
+      this.updatePlayer(e);
+    }
   }
 };

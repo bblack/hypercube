@@ -3,10 +3,18 @@ var _ = require('underscore');
 var events = require('events');
 var util = require('util');
 
-var Player = function() {
+var Entity = function(game, type){
+  this.id = game.getNewEntityId();
+  game.entities[this.id] = this;
+  console.log(type, this)
+  this.type = type;
+}
+
+var Player = function(game) {
   var self = this;
 
-  this.id = Math.floor(Math.random() * 1000000).toString();
+  Player.super_.call(this, game, 'player');
+
   this.position = [300, 300];
   this.velocity = [0, 0];
   this.orientAngle = 0;
@@ -24,8 +32,10 @@ var Player = function() {
   };
 }
 
-var Rock = function(){
-  this.id = 99;
+util.inherits(Player, Entity)
+
+var Rock = function(game){
+  Rock.super_.call(this, game, 'rock')
   this.verts = [];
   var points = 8;
   for (var i=0; i<points; i++) {
@@ -37,22 +47,29 @@ var Rock = function(){
   this.position = [100,100]
 }
 
+util.inherits(Rock, Entity)
+
 function Game() {
   var self = this;
 
   this.tickHandle;
+  this.entities = {}; // keyed on id
   this.players = {};
   this.rocks = {};
   this.fps = 10;
   this.frameDuration = 1000 / this.fps;
-
   this.ticks = 0;
+  this.nextEntityId = 1;
+
+  this.getNewEntityId = function(){
+    return this.nextEntityId++;
+  };
 
   this.run = function() {
     if (this.tickHandle) { throw 'Already running'; }
     this.tickHandle = setInterval(function(){ self.tick(); }, this.frameDuration);
 
-    var rock = new Rock();
+    var rock = new Rock(this);
     this.rocks[rock.id] = rock;
   }
 
@@ -72,7 +89,8 @@ function Game() {
     // }
 
     // update player positions
-    _.each(_.values(self.players), function(p){
+    _.each(_.values(self.entities), function(p){
+      if (p.type != 'player') { return; }
       if (p.left) { p.orientAngle += Math.PI / self.fps; }
       if (p.right) { p.orientAngle -= Math.PI / self.fps; }
       p.orientAngle = p.orientAngle % (2*Math.PI);
@@ -133,7 +151,7 @@ function Game() {
   }
 
   this.newPlayer = function() {
-    var p = new Player();
+    var p = new Player(this);
     if (this.players[p.id]) { throw "player id collision"; }
     this.players[p.id] = p;
     return p;

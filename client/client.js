@@ -26,11 +26,11 @@ var Client = function() {
       console.log('server said welcome');
     });
 
-    this.socket.on('player_present', function(p){
-      console.log('was told about player ' + p.id);
-      self.game.addPlayer(p);
-      self.drawer.addPlayer(p);
-    });
+    // this.socket.on('player_present', function(p){
+    //   console.log('was told about player ' + p.id);
+    //   self.game.addPlayer(p);
+    //   self.drawer.addPlayer(p);
+    // });
 
     this.socket.on('player_left', function(p){
       console.log('got player_left');
@@ -59,44 +59,35 @@ var Client = function() {
   this.tick = function() {
     var interpFrame = self.interpFrame();
 
-    $.each(interpFrame.players, function(i,p){
-      if (!self.game.players[p.id]) {
-        self.game.addPlayer(p);
-        self.drawer.addPlayer(p);
+    _.each(interpFrame.entities, function(ent,i){
+      if (!self.game.entities[ent.id]) {
+        self.game.addEntity(ent);
+        self.drawer.addEntity(ent);
       }
-      self.drawer.updatePlayer(p);
+      self.drawer.updateEntity(ent);
     });
-
-    $.each(interpFrame.rocks, function(i,r){
-      if (!self.game.rocks[r.id]) {
-        self.game.addRock(r);
-        self.drawer.addRock(r);
-      }
-      // self.drawer.updateRock(r);
-    })
   };
 
   this.interpFrame = function() {
     var oldFrame = self.lastFewUpdates[1];
-    if (!oldFrame) { return {players: []}; }
+    if (!oldFrame) { return {entities: []}; }
 
     var newFrame = self.lastFewUpdates[0];
     if (!newFrame) { return oldFrame; }
 
     var timeDiff = newFrame.time - oldFrame.time;
     var now = Date.now();
-    var interpFrame = {players: []};
-    var oldPlayers = {}; // just for quick lookup
+    var interpFrame = {entities: []};
+    var oldEntities = {}; // just for quick lookup
 
-    $.each(oldFrame.data.players, function(i,p){ oldPlayers[p.id] = p; });
-    $.each(newFrame.data.players, function(i,newPlayer){
-      var oldPlayer = oldPlayers[newPlayer.id];
-      if (oldPlayer) {
-
+    _.each(oldFrame.data.entities, function(e,i){ oldEntities[e.id] = e; })
+    _.each(newFrame.data.entities, function(newEnt,i){
+      var oldEnt = oldEntities[newEnt.id];
+      if (oldEnt) {
         // attempt to detect that the angle has crossed the 0/2pi line
         // rather than making an almost full circle in one tick
-        var newAngle = newPlayer.orientAngle;
-        var oldAngle = oldPlayer.orientAngle;
+        var newAngle = newEnt.orientAngle;
+        var oldAngle = oldEnt.orientAngle;
         if (Math.abs(newAngle - oldAngle) > Math.PI) {
           if (newAngle < oldAngle) {
             newAngle += 2*Math.PI;
@@ -111,21 +102,18 @@ var Client = function() {
           // virtually simultaneously. To fix, have server include its own timestamp.
           // Server time should then only be used for calculating time diffs.
         }
-
-        interpFrame.players.push(
+        interpFrame.entities.push(
           // To do extrap instead of interp, just replace "old + delta" with "new + delta"
-          $.extend({}, newPlayer, {
+          _.extend({}, newEnt, {
             orientAngle: oldAngle + ((newAngle - oldAngle) / timeDiff) * (now - newFrame.time),
             position: [
-              oldPlayer.position[0] + ((newPlayer.position[0] - oldPlayer.position[0]) / timeDiff) * (now - newFrame.time),
-              oldPlayer.position[1] + ((newPlayer.position[1] - oldPlayer.position[1]) / timeDiff) * (now - newFrame.time)
+              oldEnt.position[0] + ((newEnt.position[0] - oldEnt.position[0]) / timeDiff) * (now - newFrame.time),
+              oldEnt.position[1] + ((newEnt.position[1] - oldEnt.position[1]) / timeDiff) * (now - newFrame.time)
             ]
           })
-        );
+        )
       }
     });
-
-    interpFrame.rocks = newFrame.data.rocks;
 
     return interpFrame;
   };

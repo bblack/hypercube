@@ -1,6 +1,7 @@
 var Game = function() {
   var self = this;
 
+  this.entities = {};
   this.players = {};
   this.rocks = {};
   this.fps = 60;
@@ -11,6 +12,10 @@ var Game = function() {
 
   this.addPlayer = function(p) {
     this.players[p.id] = p;
+  }
+
+  this.addEntity = function(e){
+    this.entities[e.id] = e;
   }
 
   this.removePlayer = function(pid) {

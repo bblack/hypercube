@@ -28,17 +28,25 @@ var Server = function() {
     }
   }
 
+  this.entityUpdateMsg = function(e){
+    var m;
+    if (e.type === 'player') {
+      m = this.playerUpdateMsg(e);
+    } else if (e.type === 'rock') {
+      m = this.rockUpdateMsg(e);
+    }
+    m.type = e.type;
+    return m;
+  }
+
   this.startGame = function() {
     this.game.run();
     this.game.on('tick', function(){
       _.each(_.keys(self.playersBySocketId), function(sid){
         var socket = self.socketsBySocketId[sid];
         socket.emit('tick', {
-          players: _.map(self.game.players, function(p){
-            return self.playerUpdateMsg(p);
-          }),
-          rocks: _.map(self.game.rocks, function(r){
-            return self.rockUpdateMsg(r);
+          entities: _.map(self.game.entities, function(e){
+            return self.entityUpdateMsg(e);
           })
         });
       });
