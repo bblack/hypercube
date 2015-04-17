@@ -1,11 +1,11 @@
-var g = require('./game.js');
+var Game = require('./game.js');
 var socketio = require('socket.io');
 var _ = require('underscore');
 
 var Server = function() {
   var self = this;
 
-  this.game = new g.Game();
+  this.game = new Game();
   this.io;
   this.playersBySocketId = {}; // keyed on socket.id
   this.socketsBySocketId = {}; // keyed on socket.id
@@ -63,17 +63,17 @@ var Server = function() {
 
       // Negotiation
       socket.emit('welcome', 'hypercube');
-      var player = self.game.newPlayer();
-      self.playersBySocketId[socket.id] = player;
 
       // Tell client about current game state
-      _.each(_.keys(self.game.players), function(pid) {
-        var otherPlayer = self.game.players[pid];
-        socket.emit('player_present', self.playerUpdateMsg(otherPlayer));
+      _.each(self.game.entities, function(ent, id) {
+        if (ent.type !== 'player') return;
+        socket.emit('player_present', self.playerUpdateMsg(ent));
       });
 
+      var player = new Game.Player(self.game);
+      self.playersBySocketId[socket.id] = player;
+
       _.each(self.socketsBySocketId, function(otherPlayerSocket){
-        if (otherPlayerSocket == socket) { return; }
         otherPlayerSocket.emit('player_joined', self.playerUpdateMsg(player))
       });
 

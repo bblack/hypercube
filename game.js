@@ -54,7 +54,6 @@ function Game() {
 
   this.tickHandle;
   this.entities = {}; // keyed on id
-  this.players = {};
   this.rocks = {};
   this.fps = 10;
   this.frameDuration = 1000 / this.fps;
@@ -150,13 +149,6 @@ function Game() {
     this.lastTickTime = this.thisTickTime;
   }
 
-  this.newPlayer = function() {
-    var p = new Player(this);
-    if (this.players[p.id]) { throw "player id collision"; }
-    this.players[p.id] = p;
-    return p;
-  }
-
   this.removeEntity = function(eid) {
     console.log('removing entity', eid)
     var entityPresent = !!this.entities[eid];
@@ -169,4 +161,8 @@ function Game() {
 
 util.inherits(Game, events.EventEmitter);
 
-module.exports = {"Game": Game};
+Game.Entity = Entity;
+Game.Player = Player;
+Game.Rock = Rock;
+
+module.exports = Game;
