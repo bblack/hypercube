@@ -2,27 +2,23 @@ var Game = function() {
   var self = this;
 
   this.entities = {};
-  this.players = {};
-  this.rocks = {};
   this.fps = 60;
-
-  this.addRock = function(r){
-    this.rocks[r.id] = r;
-  }
-
-  this.addPlayer = function(p) {
-    this.players[p.id] = p;
-  }
 
   this.addEntity = function(e){
     this.entities[e.id] = e;
+    if (e.type == 'player') self.emit('player_added', e);
+    if (e.type == 'rock') self.emit('rock_added', e);
   }
 
-  this.removePlayer = function(pid) {
-    if (this.players[pid]) {
-      delete this.players[pid];
+  this.removeEntity = function(eid){
+    if (this.entities[eid]) {
+      var e = this.entities[eid];
+      delete this.entities[eid];
+      if (e.type == 'player') self.emit('player_left', e);
     } else {
-      throw "Game couldn't remove player because he doesn't exist";
+      throw "Game couldn't remove entity because it doesn't exist: " + eid;
     }
   }
 };
+
+inherits(Game, EventEmitter2);

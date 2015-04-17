@@ -157,11 +157,13 @@ function Game() {
     return p;
   }
 
-  this.removePlayer = function(pid) {
-    var playerPresent = !!this.players[pid];
-    if (!playerPresent) { throw "Player not present: " + pid.toString(); }
-    delete this.players[pid];
-    return playerPresent;
+  this.removeEntity = function(eid) {
+    console.log('removing entity', eid)
+    var entityPresent = !!this.entities[eid];
+    if (!entityPresent) { throw "Entity not present: " + eid; }
+    delete this.entities[eid];
+    console.log('entities remaining', this.entities)
+    return entityPresent;
   }
 };
 

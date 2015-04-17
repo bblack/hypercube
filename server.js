@@ -12,6 +12,7 @@ var Server = function() {
 
   this.playerUpdateMsg = function(p) {
     return {
+      type: 'player',
       id: p.id,
       position: p.position.map(Math.round),
       orientAngle: p.orientAngle,
@@ -71,9 +72,14 @@ var Server = function() {
         socket.emit('player_present', self.playerUpdateMsg(otherPlayer));
       });
 
+      _.each(self.socketsBySocketId, function(otherPlayerSocket){
+        if (otherPlayerSocket == socket) { return; }
+        otherPlayerSocket.emit('player_joined', self.playerUpdateMsg(player))
+      });
+
       // Listen forever for client commands
       socket.on('disconnect', function(){
-        self.game.removePlayer(player.id);
+        self.game.removeEntity(player.id);
         delete self.socketsBySocketId[socket.id];
         delete self.playersBySocketId[socket.id];
         self.io.sockets.emit('player_left', {id: player.id});

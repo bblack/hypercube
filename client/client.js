@@ -2,8 +2,8 @@ var Client = function() {
   var self = this;
 
   this.connect = function() {
-    this.drawer = new Drawer();
     this.game = new Game();
+    this.drawer = new Drawer(this.game);
     if (this.socket) { throw 'already connected'; }
     try { io; } catch (Exception) {
       self.drawer.status('could not connect', 'red');
@@ -26,16 +26,19 @@ var Client = function() {
       console.log('server said welcome');
     });
 
-    // this.socket.on('player_present', function(p){
-    //   console.log('was told about player ' + p.id);
-    //   self.game.addPlayer(p);
-    //   self.drawer.addPlayer(p);
-    // });
+    this.socket.on('player_present', function(p){
+      console.log('player present: ' + p.id);
+      self.game.addEntity(p);
+    });
+
+    this.socket.on('player_joined', function(p){
+      console.log('player joined: ' + p.id);
+      self.game.addEntity(p);
+    });
 
     this.socket.on('player_left', function(p){
-      console.log('got player_left');
-      self.game.removePlayer(p.id);
-      self.drawer.removePlayer(p.id);
+      console.log('player left: ' + p.id);
+      self.game.removeEntity(p.id);
     });
 
     this.socket.on('tick', function(data){
@@ -60,10 +63,9 @@ var Client = function() {
     var interpFrame = self.interpFrame();
 
     _.each(interpFrame.entities, function(ent,i){
-      if (!self.game.entities[ent.id]) {
-        self.game.addEntity(ent);
-        self.drawer.addEntity(ent);
-      }
+      // if (!self.game.entities[ent.id]) {
+      //   self.game.addEntity(ent);
+      // }
       self.drawer.updateEntity(ent);
     });
   };

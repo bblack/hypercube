@@ -1,5 +1,18 @@
-var Drawer = function() {
+var Drawer = function(game) {
   var self = this;
+  this.game = game;
+  this.game.on('player_added', function(p){
+    self.log('adding player ' + p.id)
+    self.addPlayer(p);
+  })
+  this.game.on('player_left', function(p){
+    self.log('removing player ' + p.id)
+    self.removePlayer(p.id);
+  })
+  this.game.on('rock_added', function(r){
+    self.log('adding rock ' + r.id)
+    self.addRock(r);
+  })
 
   this.fitCanvasToWindow = function() {
     var winW = window.innerWidth;
@@ -78,6 +91,18 @@ var Drawer = function() {
       this.addPlayer(e);
     } else if (e.type == 'rock') {
       this.addRock(e);
+    } else {
+      throw 'unrecognized entity';
+    }
+  }
+
+  this.removeEntity = function(e){
+    if (e.type == 'player') {
+      this.removePlayer(e);
+    } else if (e.type == 'rock') {
+      this.removeRock(e);
+    } else {
+      throw 'unrecognized entity';
     }
   }
 
@@ -116,4 +141,8 @@ var Drawer = function() {
       this.updatePlayer(e);
     }
   }
-};
+}
+
+Drawer.prototype.log = function(msg){
+  console.log('[drawer] ' + msg);
+}
