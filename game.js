@@ -2,72 +2,9 @@ var Mustache = require('mustache');
 var _ = require('underscore');
 var events = require('events');
 var util = require('util');
-
-var Entity = function(game, type){
-  this.id = game.getNewEntityId();
-  game.entities[this.id] = this;
-  console.log(type, this)
-  this.type = type;
-}
-
-var Player = function(game) {
-  var self = this;
-
-  Player.super_.call(this, game, 'player');
-
-  this.position = [300, 300];
-  this.velocity = [0, 0];
-  this.orientAngle = 0;
-  this.forward = false;
-  this.back = false;
-  this.left = false;
-  this.right = false;
-  this.color = function() {
-    var color = Math.floor(Math.random()*parseInt("FFFFFF", 16));
-    return "#" + ("00000" + color.toString(16)).slice(-6);
-  }();
-
-  this.rotate = function(angle) {
-    self.orientAngle = (self.orientAngle + angle) % (2*Math.PI);
-  };
-}
-
-util.inherits(Player, Entity)
-
-Player.prototype.descriptor = function(){
-  return {
-    type: this.type,
-    id: this.id,
-    position: this.position.map(Math.round),
-    orientAngle: this.orientAngle,
-    a: this.forward || this.back,
-    color: this.color
-  };
-}
-
-var Rock = function(game){
-  Rock.super_.call(this, game, 'rock')
-  this.verts = [];
-  var points = 8;
-  for (var i=0; i<points; i++) {
-    var r = 50;
-    var x = Math.floor( Math.sin(2*Math.PI * i / points) * r )
-    var y = Math.floor( Math.cos(2*Math.PI * i / points) * r )
-    this.verts.push([x, y]);
-  }
-  this.position = [100,100]
-}
-
-util.inherits(Rock, Entity)
-
-Rock.prototype.descriptor = function(){
-  return {
-    type: this.type,
-    id: this.id,
-    position: this.position.map(Math.round),
-    verts: this.verts
-  }
-}
+var Entity = require('./game/entity')
+var Player = require('./game/player')
+var Rock = require('./game/rock')
 
 function Game() {
   var self = this;
