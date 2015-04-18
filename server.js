@@ -23,6 +23,7 @@ var Server = function() {
 
   this.rockUpdateMsg = function(r){
     return {
+      type: 'rock',
       id: r.id,
       position: r.position.map(Math.round),
       verts: r.verts
@@ -66,8 +67,11 @@ var Server = function() {
 
       // Tell client about current game state
       _.each(self.game.entities, function(ent, id) {
-        if (ent.type !== 'player') return;
-        socket.emit('player_present', self.playerUpdateMsg(ent));
+        if (ent.type == 'player') {
+          socket.emit('player_present', self.playerUpdateMsg(ent));
+        } else if (ent.type == 'rock') {
+          socket.emit('rock_added', self.rockUpdateMsg(ent));
+        }
       });
 
       var player = new Game.Player(self.game);

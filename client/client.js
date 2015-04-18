@@ -26,6 +26,10 @@ var Client = function() {
       console.log('server said welcome');
     });
 
+    this.socket.on('rock_added', function(r){
+      self.game.addEntity(r)
+    })
+
     this.socket.on('player_present', function(p){
       console.log('player present: ' + p.id);
       self.game.addEntity(p);
