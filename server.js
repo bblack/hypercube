@@ -10,37 +10,6 @@ var Server = function() {
   this.playersBySocketId = {}; // keyed on socket.id
   this.socketsBySocketId = {}; // keyed on socket.id
 
-  this.playerUpdateMsg = function(p) {
-    return {
-      type: 'player',
-      id: p.id,
-      position: p.position.map(Math.round),
-      orientAngle: p.orientAngle,
-      a: p.forward || p.back,
-      color: p.color
-    };
-  };
-
-  this.rockUpdateMsg = function(r){
-    return {
-      type: 'rock',
-      id: r.id,
-      position: r.position.map(Math.round),
-      verts: r.verts
-    }
-  }
-
-  this.entityUpdateMsg = function(e){
-    var m;
-    if (e.type === 'player') {
-      m = this.playerUpdateMsg(e);
-    } else if (e.type === 'rock') {
-      m = this.rockUpdateMsg(e);
-    }
-    m.type = e.type;
-    return m;
-  }
-
   this.startGame = function() {
     this.game.run();
     this.game.on('tick', function(){
@@ -48,7 +17,8 @@ var Server = function() {
         var socket = self.socketsBySocketId[sid];
         socket.emit('tick', {
           entities: _.map(self.game.entities, function(e){
-            return self.entityUpdateMsg(e);
+            // TODO: don't be sending redundant unchanged stuff, like color or geometry
+            return e.descriptor();
           })
         });
       });
@@ -68,9 +38,9 @@ var Server = function() {
       // Tell client about current game state
       _.each(self.game.entities, function(ent, id) {
         if (ent.type == 'player') {
-          socket.emit('player_present', self.playerUpdateMsg(ent));
+          socket.emit('player_present', ent.descriptor());
         } else if (ent.type == 'rock') {
-          socket.emit('rock_added', self.rockUpdateMsg(ent));
+          socket.emit('rock_added', ent.descriptor());
         }
       });
 
@@ -78,7 +48,7 @@ var Server = function() {
       self.playersBySocketId[socket.id] = player;
 
       _.each(self.socketsBySocketId, function(otherPlayerSocket){
-        otherPlayerSocket.emit('player_joined', self.playerUpdateMsg(player))
+        otherPlayerSocket.emit('player_joined', player.descriptor())
       });
 
       // Listen forever for client commands

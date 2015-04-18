@@ -34,6 +34,17 @@ var Player = function(game) {
 
 util.inherits(Player, Entity)
 
+Player.prototype.descriptor = function(){
+  return {
+    type: this.type,
+    id: this.id,
+    position: this.position.map(Math.round),
+    orientAngle: this.orientAngle,
+    a: this.forward || this.back,
+    color: this.color
+  };
+}
+
 var Rock = function(game){
   Rock.super_.call(this, game, 'rock')
   this.verts = [];
@@ -49,12 +60,20 @@ var Rock = function(game){
 
 util.inherits(Rock, Entity)
 
+Rock.prototype.descriptor = function(){
+  return {
+    type: this.type,
+    id: this.id,
+    position: this.position.map(Math.round),
+    verts: this.verts
+  }
+}
+
 function Game() {
   var self = this;
 
   this.tickHandle;
   this.entities = {}; // keyed on id
-  this.rocks = {};
   this.fps = 10;
   this.frameDuration = 1000 / this.fps;
   this.ticks = 0;
@@ -69,7 +88,6 @@ function Game() {
     this.tickHandle = setInterval(function(){ self.tick(); }, this.frameDuration);
 
     var rock = new Rock(this);
-    this.rocks[rock.id] = rock;
   }
 
   this.tick = function() {
