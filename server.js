@@ -48,6 +48,8 @@ var Server = function() {
           socket.emit('player_present', ent.descriptor());
         } else if (ent.type == 'rock') {
           socket.emit('rock_added', ent.descriptor());
+        } else {
+          socket.emit('entity_present', ent.descriptor())
         }
       });
 

@@ -15,7 +15,7 @@ var Drawer = function(game) {
     self.addRock(r);
   })
   .on('bullet_added', function(b){
-    self.log('adding bullet', b)
+    self.log('adding bullet', b.id)
     self.addBullet(b)
   })
 
@@ -95,7 +95,8 @@ var Drawer = function(game) {
   this.addBullet = function(b){
     var el = this.paper.circle(b.position[0], b.position[1], 2);
     el.attr('stroke', 'white');
-    this.bullets[b.id] = b;
+    this.bullets[b.id] = el;
+    this.updateBullet(b);
   }
 
   this.addEntity = function(e){
@@ -150,10 +151,10 @@ var Drawer = function(game) {
 
   }
 
-  this.updateBullet = function(bullet){
-    if (!this.bullets[bullet.id]) {
-      this.bullets[bullet.id] = bullet
-    }
+  this.updateBullet = function(b){
+    var el = this.bullets[b.id]
+    el.attr('cx', b.position[0])
+    el.attr('cy', 600-b.position[1])
   }
 
   this.updateEntity = function(e){
@@ -170,5 +171,5 @@ var Drawer = function(game) {
 }
 
 Drawer.prototype.log = function(msg){
-  console.log('[drawer] ' + Array.prototype.join(arguments.join, ' '));
+  console.log('[drawer] ' + Array.prototype.join.call(arguments, ' '));
 }

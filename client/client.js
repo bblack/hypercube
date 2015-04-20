@@ -26,6 +26,10 @@ var Client = function() {
       console.log('server said welcome');
     });
 
+    this.socket.on('entity_present', function(e){
+      self.game.addEntity(e)
+    })
+
     this.socket.on('entity_added', function(e){
       self.game.addEntity(e)
     })
@@ -71,9 +75,6 @@ var Client = function() {
     var interpFrame = self.interpFrame();
 
     _.each(interpFrame.entities, function(ent,i){
-      // if (!self.game.entities[ent.id]) {
-      //   self.game.addEntity(ent);
-      // }
       self.drawer.updateEntity(ent);
     });
   };
@@ -93,6 +94,7 @@ var Client = function() {
     _.each(oldFrame.data.entities, function(e,i){ oldEntities[e.id] = e; })
     _.each(newFrame.data.entities, function(newEnt,i){
       var oldEnt = oldEntities[newEnt.id];
+      var interpEnt = oldEnt;
       if (oldEnt) {
         // attempt to detect that the angle has crossed the 0/2pi line
         // rather than making an almost full circle in one tick
@@ -112,17 +114,18 @@ var Client = function() {
           // virtually simultaneously. To fix, have server include its own timestamp.
           // Server time should then only be used for calculating time diffs.
         }
-        interpFrame.entities.push(
-          // To do extrap instead of interp, just replace "old + delta" with "new + delta"
-          _.extend({}, newEnt, {
-            orientAngle: oldAngle + ((newAngle - oldAngle) / timeDiff) * (now - newFrame.time),
-            position: [
-              oldEnt.position[0] + ((newEnt.position[0] - oldEnt.position[0]) / timeDiff) * (now - newFrame.time),
-              oldEnt.position[1] + ((newEnt.position[1] - oldEnt.position[1]) / timeDiff) * (now - newFrame.time)
-            ]
-          })
-        )
+
+        // TODO: if the server told us a velocity, use it (otherwise new ents with velo will pause momentarily)
+        // To do extrap instead of interp, just replace "old + delta" with "new + delta"
+        interpEnt = _.extend({}, newEnt, {
+          orientAngle: oldAngle + ((newAngle - oldAngle) / timeDiff) * (now - newFrame.time),
+          position: [
+            oldEnt.position[0] + ((newEnt.position[0] - oldEnt.position[0]) / timeDiff) * (now - newFrame.time),
+            oldEnt.position[1] + ((newEnt.position[1] - oldEnt.position[1]) / timeDiff) * (now - newFrame.time)
+          ]
+        })
       }
+      interpFrame.entities.push(interpEnt)
     });
 
     return interpFrame;
