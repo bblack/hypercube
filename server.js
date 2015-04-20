@@ -11,9 +11,9 @@ var Server = function() {
   this.socketsBySocketId = {}; // keyed on socket.id
 
   this.startGame = function() {
-    this.game.run();
-    this.game.on('tick', function(){
-      _.each(_.keys(self.playersBySocketId), function(sid){
+    this.game.run()
+    .on('tick', function(){
+      _.each(self.playersBySocketId, function(players, sid){
         var socket = self.socketsBySocketId[sid];
         socket.emit('tick', {
           entities: _.map(self.game.entities, function(e){
@@ -22,7 +22,14 @@ var Server = function() {
           })
         });
       });
-    });
+    })
+    .on('entity_added', function(entity){
+      // TODO: get the other entities on this
+      if (entity.type !== 'bullet') return;
+      _.each(self.socketsBySocketId, function(socket){
+        socket.emit('entity_added', entity.descriptor())
+      })
+    })
   }
 
   this.startListening = function(server) {
@@ -67,6 +74,8 @@ var Server = function() {
       socket.on('-left', function(){ player.left = false; });
       socket.on('+right', function(){ player.right = true; });
       socket.on('-right', function(){ player.right = false; });
+      socket.on('+attack', function(){ player.attack(true); });
+      socket.on('-attack', function(){ player.attack(false); });
     });
   }
 };

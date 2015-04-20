@@ -23,8 +23,8 @@ function Game() {
   this.run = function() {
     if (this.tickHandle) { throw 'Already running'; }
     this.tickHandle = setInterval(function(){ self.tick(); }, this.frameDuration);
-
     var rock = new Rock(this);
+    return this;
   }
 
   this.tick = function() {
@@ -102,6 +102,11 @@ function Game() {
 
     // Let nothing come after this in this function
     this.lastTickTime = this.thisTickTime;
+  }
+
+  this.addEntity = function(e){
+    this.entities[e.id] = e;
+    this.emit('entity_added', e);
   }
 
   this.removeEntity = function(eid) {

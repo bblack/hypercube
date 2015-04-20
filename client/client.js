@@ -26,6 +26,10 @@ var Client = function() {
       console.log('server said welcome');
     });
 
+    this.socket.on('entity_added', function(e){
+      self.game.addEntity(e)
+    })
+
     this.socket.on('rock_added', function(r){
       self.game.addEntity(r)
     })
@@ -166,7 +170,8 @@ var Client = function() {
     'up': '+forward',
     'down': '+back',
     'left': '+left',
-    'right': '+right'
+    'right': '+right',
+    'space': '+attack'
   };
 
   $.each(key_bindings, function(k,v){

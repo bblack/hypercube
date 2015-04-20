@@ -8,6 +8,7 @@ var Game = function() {
     this.entities[e.id] = e;
     if (e.type == 'player') self.emit('player_added', e);
     if (e.type == 'rock') self.emit('rock_added', e);
+    if (e.type == 'bullet') self.emit('bullet_added', e);
   }
 
   this.removeEntity = function(eid){

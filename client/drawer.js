@@ -1,17 +1,22 @@
 var Drawer = function(game) {
   var self = this;
-  this.game = game;
-  this.game.on('player_added', function(p){
+
+  this.game = game
+  .on('player_added', function(p){
     self.log('adding player ' + p.id)
     self.addPlayer(p);
   })
-  this.game.on('player_left', function(p){
+  .on('player_left', function(p){
     self.log('removing player ' + p.id)
     self.removePlayer(p.id);
   })
-  this.game.on('rock_added', function(r){
+  .on('rock_added', function(r){
     self.log('adding rock ' + r.id)
     self.addRock(r);
+  })
+  .on('bullet_added', function(b){
+    self.log('adding bullet', b)
+    self.addBullet(b)
   })
 
   this.fitCanvasToWindow = function() {
@@ -41,6 +46,7 @@ var Drawer = function(game) {
     .attr('font-size', '20');
   this.players = {} // player id => {name: element}
   this.rocks = {} // rock id => element
+  this.bullets = {} // id => element
 
   this.clear = function() {
     $.each(this.players, function(pid, p){
@@ -86,11 +92,19 @@ var Drawer = function(game) {
     this.rocks[r.id] = r;
   }
 
+  this.addBullet = function(b){
+    var el = this.paper.circle(b.position[0], b.position[1], 2);
+    el.attr('stroke', 'white');
+    this.bullets[b.id] = b;
+  }
+
   this.addEntity = function(e){
     if (e.type == 'player') {
       this.addPlayer(e);
     } else if (e.type == 'rock') {
       this.addRock(e);
+    } else if (e.type == 'bullet') {
+      this.addBullet(e);
     } else {
       throw 'unrecognized entity';
     }
@@ -136,13 +150,25 @@ var Drawer = function(game) {
 
   }
 
+  this.updateBullet = function(bullet){
+    if (!this.bullets[bullet.id]) {
+      this.bullets[bullet.id] = bullet
+    }
+  }
+
   this.updateEntity = function(e){
     if (e.type === 'player') {
       this.updatePlayer(e);
+    } else if (e.type === 'bullet') {
+      this.updateBullet(e);
+    } else if (e.type === 'rock') {
+      this.updateRock(e);
+    } else {
+      throw 'entity not recognized. type: ' + e.type;
     }
   }
 }
 
 Drawer.prototype.log = function(msg){
-  console.log('[drawer] ' + msg);
+  console.log('[drawer] ' + Array.prototype.join(arguments.join, ' '));
 }

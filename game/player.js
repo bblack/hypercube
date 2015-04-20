@@ -1,5 +1,6 @@
 var util = require('util')
 var Entity = require('./entity')
+var Bullet = require('./bullet')
 
 var Player = function(game) {
   var self = this;
@@ -34,6 +35,17 @@ Player.prototype.descriptor = function(){
     a: this.forward || this.back,
     color: this.color
   };
+}
+
+Player.prototype.attack = function(on) {
+  if (on !== !!on) throw "arg should be bool";
+  if (on) {
+    var v = 200
+    var bullet = new Bullet(this.game, {
+      position: this.position,
+      velocity: [v*Math.cos(this.orientAngle), v*Math.sin(this.orientAngle)]
+    })
+  }
 }
 
 module.exports = Player;
