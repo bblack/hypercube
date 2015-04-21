@@ -117,14 +117,19 @@ var Client = function() {
 
         // TODO: if the server told us a velocity, use it (otherwise new ents with velo will pause momentarily)
         // To do extrap instead of interp, just replace "old + delta" with "new + delta"
+        var v =
+          (newEnt.position[0] - oldEnt.position[0]) / timeDiff,
+          (newEnt.position[1] - oldEnt.position[1]) / timeDiff
+        ];
         interpEnt = _.extend({}, newEnt, {
           orientAngle: oldAngle + ((newAngle - oldAngle) / timeDiff) * (now - newFrame.time),
           position: [
-            oldEnt.position[0] + ((newEnt.position[0] - oldEnt.position[0]) / timeDiff) * (now - newFrame.time),
-            oldEnt.position[1] + ((newEnt.position[1] - oldEnt.position[1]) / timeDiff) * (now - newFrame.time)
+            oldEnt.position[0] + v[0] * (now - newFrame.time),
+            oldEnt.position[1] + v[1] * (now - newFrame.time)
           ]
         })
       }
+      if (!interpEnt) debugger;
       interpFrame.entities.push(interpEnt)
     });
 
