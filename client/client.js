@@ -128,8 +128,8 @@ var Client = function() {
             oldEnt.position[1] + v[1] * (now - newFrame.time)
           ]
         })
+        interpFrame.entities.push(interpEnt)
       }
-      interpFrame.entities.push(interpEnt)
     });
 
     return interpFrame;
