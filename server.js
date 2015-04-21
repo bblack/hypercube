@@ -30,6 +30,11 @@ var Server = function() {
         socket.emit('entity_added', entity.descriptor())
       })
     })
+    .on('entity_removed', function(eid){
+      _.each(self.socketsBySocketId, function(socket){
+        socket.emit('entity_removed', eid)
+      })
+    })
   }
 
   this.startListening = function(server) {

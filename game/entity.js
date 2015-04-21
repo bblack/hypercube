@@ -1,6 +1,7 @@
 var _ = require('underscore')
 
 var Entity = function(game, type, opts){
+  var self = this;
   this.game = game;
   this.id = game.getNewEntityId();
   this.type = type;
@@ -10,10 +11,15 @@ var Entity = function(game, type, opts){
   this.accel = [0, 0]
   for (var key in opts) {
     // clone in case e.g. copying vector from another entity
-    if (type == 'bullet') console.log(opts)
     this[key] = _.clone(opts[key]);
   }
   game.addEntity(this);
+
+  if (this.ttl) {
+    setTimeout(function(){
+      game.removeEntity(self.id)
+    }, this.ttl)
+  }
 }
 
 Entity.prototype.tick = function(duration){

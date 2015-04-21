@@ -62,8 +62,7 @@ function Game() {
     var entityPresent = !!this.entities[eid];
     if (!entityPresent) { throw "Entity not present: " + eid; }
     delete this.entities[eid];
-    console.log('entities remaining', this.entities)
-    return entityPresent;
+    this.emit('entity_removed', eid)
   }
 };
 

@@ -34,6 +34,10 @@ var Client = function() {
       self.game.addEntity(e)
     })
 
+    this.socket.on('entity_removed', function(eid){
+      self.game.removeEntity(eid)
+    })
+
     this.socket.on('rock_added', function(r){
       self.game.addEntity(r)
     })

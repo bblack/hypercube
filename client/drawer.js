@@ -18,6 +18,10 @@ var Drawer = function(game) {
     self.log('adding bullet', b.id)
     self.addBullet(b)
   })
+  .on('bullet_removed', function(bid){
+    self.log('removing bullet', bid)
+    self.removeBullet(bid)
+  })
 
   this.fitCanvasToWindow = function() {
     var winW = window.innerWidth;
@@ -97,6 +101,12 @@ var Drawer = function(game) {
     el.attr('stroke', 'white');
     this.bullets[b.id] = el;
     this.updateBullet(b);
+  }
+
+  this.removeBullet = function(bid){
+    var el = this.bullets[bid];
+    el.remove();
+    delete this.bullets[bid];
   }
 
   this.addEntity = function(e){
