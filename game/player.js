@@ -64,7 +64,7 @@ Player.prototype.attack = function(on) {
     v = [v*Math.cos(this.orientAngle), v*Math.sin(this.orientAngle)]
     var bullet = new Bullet(this.game, {
       position: this.position,
-      velocity: vec2.prototype.add.call(v, this.velocity)
+      velocity: vec2.add(v, this.velocity)
     })
   }
 }
