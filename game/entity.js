@@ -40,9 +40,9 @@ Entity.prototype.tick = function(duration){
   p.velocity[1] += p.accel[1];
   // cap abs(v)
   var vAbs = Math.sqrt(Math.pow(p.velocity[0], 2) + Math.pow(p.velocity[1], 2));
-  if (vAbs > 200) {
-    p.velocity[0] = p.velocity[0] * (200 / vAbs);
-    p.velocity[1] = p.velocity[1] * (200 / vAbs);
+  if (vAbs > this.maxSpeed) {
+    p.velocity[0] = p.velocity[0] * (this.maxSpeed / vAbs);
+    p.velocity[1] = p.velocity[1] * (this.maxSpeed / vAbs);
   }
   // @ map edge?
   if ((p.position[0] <= 0 && p.velocity[0] < 0) ||

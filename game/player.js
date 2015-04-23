@@ -6,7 +6,7 @@ var Player = function(game) {
   var self = this;
 
   Player.super_.call(this, game, 'player');
-
+  this.maxSpeed = 200;
   this.position = [300, 300];
   this.velocity = [0, 0];
   this.orientAngle = 0;
