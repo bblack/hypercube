@@ -93,9 +93,8 @@ var Client = function() {
     var timeDiff = newFrame.time - oldFrame.time;
     var now = Date.now();
     var interpFrame = {entities: []};
-    var oldEntities = {}; // just for quick lookup
+    var oldEntities = _.indexBy(oldFrame.data.entities, 'id');
 
-    _.each(oldFrame.data.entities, function(e,i){ oldEntities[e.id] = e; })
     _.each(newFrame.data.entities, function(newEnt,i){
       var oldEnt = oldEntities[newEnt.id];
       var interpEnt = oldEnt;
@@ -125,12 +124,13 @@ var Client = function() {
           (newEnt.position[0] - oldEnt.position[0]) / timeDiff,
           (newEnt.position[1] - oldEnt.position[1]) / timeDiff
         ];
+        var pos = [
+          oldEnt.position[0] + v[0] * (now - newFrame.time),
+          oldEnt.position[1] + v[1] * (now - newFrame.time)
+        ];
         interpEnt = _.extend({}, newEnt, {
           orientAngle: oldAngle + ((newAngle - oldAngle) / timeDiff) * (now - newFrame.time),
-          position: [
-            oldEnt.position[0] + v[0] * (now - newFrame.time),
-            oldEnt.position[1] + v[1] * (now - newFrame.time)
-          ]
+          position: pos
         })
         interpFrame.entities.push(interpEnt)
       }
