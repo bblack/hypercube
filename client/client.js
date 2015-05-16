@@ -83,6 +83,19 @@ var Client = function() {
     });
   };
 
+  function interpAngle(oldAngle, newAngle, timeDiff, timeSinceLastFrame){
+    // attempt to detect that the angle has crossed the 0/2pi line
+    // rather than making an almost full circle in one tick
+    if (Math.abs(newAngle - oldAngle) > Math.PI) {
+      if (newAngle < oldAngle) {
+        newAngle += 2*Math.PI;
+      } else {
+        oldAngle += 2*Math.PI;
+      }
+    }
+    return oldAngle + ((newAngle - oldAngle) / timeDiff) * timeSinceLastFrame;
+  }
+
   this.interpFrame = function() {
     var oldFrame = self.lastFewUpdates[1];
     if (!oldFrame) { return {entities: []}; }
@@ -91,49 +104,50 @@ var Client = function() {
     if (!newFrame) { return oldFrame; }
 
     var timeDiff = newFrame.time - oldFrame.time;
-    var now = Date.now();
+    var timeSinceLastFrame = Date.now() - newFrame.time;
     var interpFrame = {entities: []};
     var oldEntities = _.indexBy(oldFrame.data.entities, 'id');
 
     _.each(newFrame.data.entities, function(newEnt,i){
       var oldEnt = oldEntities[newEnt.id];
-      var interpEnt = oldEnt;
-      if (oldEnt) {
-        // attempt to detect that the angle has crossed the 0/2pi line
-        // rather than making an almost full circle in one tick
-        var newAngle = newEnt.orientAngle;
-        var oldAngle = oldEnt.orientAngle;
-        if (Math.abs(newAngle - oldAngle) > Math.PI) {
-          if (newAngle < oldAngle) {
-            newAngle += 2*Math.PI;
-          } else {
-            oldAngle += 2*Math.PI;
-          }
-        }
 
-        if (timeDiff == 0) {
-          console.warn('Tried to interp two frames with no time diff');
-          // This happens if incoming packets get choked up and then rcvd
-          // virtually simultaneously. To fix, have server include its own timestamp.
-          // Server time should then only be used for calculating time diffs.
-        }
+      var orientAngle = !oldEnt ? newEnt.orientAngle :
+        interpAngle(oldEnt.orientAngle, newEnt.orientAngle, timeDiff, timeSinceLastFrame);
 
-        // TODO: if the server told us a velocity, use it (otherwise new ents with velo will pause momentarily)
-        // To do extrap instead of interp, just replace "old + delta" with "new + delta"
+      if (timeDiff == 0) {
+        console.warn('Tried to interp two frames with no time diff');
+        // This happens if incoming packets get choked up and then rcvd
+        // virtually simultaneously. To fix, have server include its own timestamp.
+        // Server time should then only be used for calculating time diffs.
+      }
+
+      if (newEnt.velocity) {
+        // if the entity has v included, it's a "dumb" entity (i.e. not another player) that can
+        // be easily predicted using v
+        var v = _.map(newEnt.velocity, function(x){return x/1000});
+        var pos = [
+          newEnt.position[0] + v[0] * timeSinceLastFrame,
+          newEnt.position[1] + v[1] * timeSinceLastFrame
+        ];
+      } else if (oldEnt) {
+        // the entity doesn't have v included => it's difficult to predict (i.e. another player)
+        // so we lerp position b/t the last 2 frames
         var v = [
           (newEnt.position[0] - oldEnt.position[0]) / timeDiff,
           (newEnt.position[1] - oldEnt.position[1]) / timeDiff
         ];
         var pos = [
-          oldEnt.position[0] + v[0] * (now - newFrame.time),
-          oldEnt.position[1] + v[1] * (now - newFrame.time)
+          oldEnt.position[0] + v[0] * timeSinceLastFrame,
+          oldEnt.position[1] + v[1] * timeSinceLastFrame
         ];
-        interpEnt = _.extend({}, newEnt, {
-          orientAngle: oldAngle + ((newAngle - oldAngle) / timeDiff) * (now - newFrame.time),
-          position: pos
-        })
-        interpFrame.entities.push(interpEnt)
       }
+
+      var interpEnt = !pos ? newEnt : _.extend({}, newEnt, {
+        orientAngle: orientAngle,
+        position: pos
+      })
+
+      interpFrame.entities.push(interpEnt)
     });
 
     return interpFrame;
