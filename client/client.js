@@ -74,15 +74,17 @@ var Client = function() {
       }
     });
 
-    this.tickHandle = setInterval(this.tick, 1000 / this.game.fps);
+    this.tick();
   };
 
   this.tick = function() {
     var interpFrame = self.interpFrame();
 
-    _.each(interpFrame.entities, function(ent,i){
+    _.each(interpFrame.entities, function(ent){
       self.drawer.updateEntity(ent);
     });
+
+    window.requestAnimationFrame(self.tick)
   };
 
   function interpAngle(oldAngle, newAngle, timeDiff, timeSinceLastFrame){
