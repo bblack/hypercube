@@ -31,7 +31,10 @@ var Client = function() {
     })
 
     this.socket.on('entity_removed', function(eid){
-      self.game.removeEntity(eid)
+      // if we don't wait for next tick, drawer will throw when trying to lerp this entity
+      self.socket.once('tick', function(){
+        self.game.removeEntity(eid)
+      })
     })
 
     this.socket.on('rock_added', function(r){
