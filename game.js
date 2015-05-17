@@ -54,7 +54,6 @@ function Game() {
 
   this.addEntity = function(e){
     this.entities[e.id] = e;
-    this.emit('entity_added', e);
   }
 
   this.removeEntity = function(eid) {

@@ -23,13 +23,6 @@ var Server = function() {
         });
       });
     })
-    .on('entity_added', function(entity){
-      // TODO: get the other entities on this
-      if (entity.type !== 'bullet') return;
-      _.each(self.socketsBySocketId, function(socket){
-        socket.emit('entity_added', entity.descriptor())
-      })
-    })
     .on('entity_removed', function(eid){
       _.each(self.socketsBySocketId, function(socket){
         socket.emit('entity_removed', eid)

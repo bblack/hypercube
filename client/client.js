@@ -30,10 +30,6 @@ var Client = function() {
       self.game.addEntity(e)
     })
 
-    this.socket.on('entity_added', function(e){
-      self.game.addEntity(e)
-    })
-
     this.socket.on('entity_removed', function(eid){
       self.game.removeEntity(eid)
     })
@@ -65,6 +61,12 @@ var Client = function() {
         time: Date.now(),
         data: data
       });
+
+      _.each(data.entities, function(e){
+        if (!self.game.entities[e.id]) {
+          self.game.addEntity(e)
+        }
+      })
 
       // discard all but last 2 updates
       while (self.lastFewUpdates.length > 2) {
