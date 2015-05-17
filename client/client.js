@@ -16,40 +16,31 @@ var Client = function() {
     this.socket.on('connect', function(){
       self.drawer.clear();
       self.drawer.status('connected', 'lime');
-    });
-
-    this.socket.on('disconnect', function(){
-      self.drawer.status('disconnected', 'orange');
-    });
-
-    this.socket.on('welcome', function(data){
-      console.log('server said welcome');
-    });
-
-    this.socket.on('entity_present', function(e){
-      self.game.addEntity(e)
     })
-
-    this.socket.on('entity_removed', function(eid){
+    .on('disconnect', function(){
+      self.drawer.status('disconnected', 'orange');
+    })
+    .on('welcome', function(data){
+      console.log('server said welcome');
+    })
+    .on('entity_present', function(e){
+    })
+    .on('entity_removed', function(eid){
       // if we don't wait for next tick, drawer will throw when trying to lerp this entity
       self.socket.once('tick', function(){
         self.game.removeEntity(eid)
       })
     })
-
-    this.socket.on('player_present', function(p){
+    .on('player_present', function(p){
       console.log('player present: ' + p.id);
-    });
-
-    this.socket.on('player_joined', function(p){
+    })
+    .on('player_joined', function(p){
       console.log('player joined: ' + p.id);
-    });
-
-    this.socket.on('player_left', function(p){
+    })
+    .on('player_left', function(p){
       console.log('player left: ' + p.id);
-    });
-
-    this.socket.on('tick', function(data){
+    })
+    .on('tick', function(data){
       // self.printIncomingTickRate();
 
       // push latest update to front
