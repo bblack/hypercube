@@ -53,7 +53,6 @@ var Client = function() {
 
     this.socket.on('player_left', function(p){
       console.log('player left: ' + p.id);
-      self.game.removeEntity(p.id);
     });
 
     this.socket.on('tick', function(data){
