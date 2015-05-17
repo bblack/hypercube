@@ -39,12 +39,10 @@ var Client = function() {
 
     this.socket.on('player_present', function(p){
       console.log('player present: ' + p.id);
-      self.game.addEntity(p);
     });
 
     this.socket.on('player_joined', function(p){
       console.log('player joined: ' + p.id);
-      self.game.addEntity(p);
     });
 
     this.socket.on('player_left', function(p){
