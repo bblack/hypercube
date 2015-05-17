@@ -2,6 +2,11 @@ var Drawer = function(game) {
   var self = this;
 
   this.game = game
+  .on('tick', function(frame){
+    _.each(frame.entities, function(ent){
+      self.updateEntity(ent)
+    })
+  })
   .on('player_added', function(p){
     self.log('adding player ' + p.id)
     self.addPlayer(p);
