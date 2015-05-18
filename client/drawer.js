@@ -98,6 +98,7 @@ var Drawer = function(game) {
     var el = this.paper.path(path)
     el.attr('stroke', 'white')
     // el.transform('')
+    el.transform(Mustache.render("m1,0,0,-1,0,600"))
     this.rocks[r.id] = r;
   }
 
