@@ -19,6 +19,7 @@ var Game = function(client) {
       delete this.entities[eid];
       if (e.type == 'bullet') self.emit('bullet_removed', eid)
       if (e.type == 'player') self.emit('player_left', e);
+      if (e.type == 'rock') self.emit('rock_removed', eid)
     } else {
       throw "Game couldn't remove entity because it doesn't exist: " + eid;
     }

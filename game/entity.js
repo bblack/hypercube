@@ -1,4 +1,5 @@
 var _ = require('underscore')
+var Model = require('./Model')
 
 var Entity = function(game, type, opts){
   var self = this;
@@ -6,6 +7,7 @@ var Entity = function(game, type, opts){
   this.id = game.getNewEntityId();
   this.type = type;
   // ballistics
+  this.model = new Model.Point()
   this.position = [0, 0]
   this.velocity = [0, 0]
   this.accel = [0, 0]
@@ -17,7 +19,8 @@ var Entity = function(game, type, opts){
 
   if (this.ttl) {
     setTimeout(function(){
-      game.removeEntity(self.id)
+      if (game.entities[self.id])
+        game.removeEntity(self.id)
     }, this.ttl)
   }
 }
@@ -63,6 +66,10 @@ Entity.prototype.tick = function(duration){
   p.position[0] = Math.min(p.position[0], 600);
   p.position[1] = Math.max(p.position[1], 0);
   p.position[1] = Math.min(p.position[1], 600);
+}
+
+Entity.prototype.collidesWith = function(e){
+  return this.model.collidesWith(e.model, this.position, e.position);
 }
 
 module.exports = Entity;

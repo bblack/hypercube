@@ -19,6 +19,10 @@ var Drawer = function(game) {
     self.log('adding rock ' + r.id)
     self.addRock(r);
   })
+  .on('rock_removed', function(rid){
+    self.log('removing rock', rid)
+    self.removeRock(rid)
+  })
   .on('bullet_added', function(b){
     self.log('adding bullet', b.id)
     self.addBullet(b)
@@ -89,6 +93,7 @@ var Drawer = function(game) {
   }
 
   this.addRock = function(r){
+    console.log('drawing a rock')
     var path = 'M';
     r.verts.forEach(function(vert, i){
       path += (vert[0] + r.position[0]) + ',' +
@@ -99,7 +104,7 @@ var Drawer = function(game) {
     el.attr('stroke', 'white')
     // el.transform('')
     el.transform(Mustache.render("m1,0,0,-1,0,600"))
-    this.rocks[r.id] = r;
+    this.rocks[r.id] = el;
   }
 
   this.addBullet = function(b){
@@ -141,6 +146,12 @@ var Drawer = function(game) {
     var pels = this.players[pid];
     $.each(pels, function(name, el){ el.remove(); });
     delete this.players[pid];
+  }
+
+  this.removeRock = function(rid){
+    var el = this.rocks[rid];
+    el.remove();
+    delete this.rocks[rid];
   }
 
   this.updatePlayer = function(p) {
