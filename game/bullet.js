@@ -30,14 +30,16 @@ Bullet.prototype.tick = function(){
 
   if (collidingRock) {
     console.log('bullet', self.id, 'collides with rock', collidingRock.id)
-    var newRock1 = new Rock(self.game, {
-      radius: collidingRock.radius / 2,
-      position: [collidingRock.position[0] - collidingRock.radius / 2, collidingRock.position[1]]
-    })
-    var newRock1 = new Rock(self.game, {
-      radius: collidingRock.radius / 2,
-      position: [collidingRock.position[0] + collidingRock.radius / 2, collidingRock.position[1]]
-    })
+    if (collidingRock.radius > 10) {
+      var newRock1 = new Rock(self.game, {
+        radius: collidingRock.radius / 2,
+        position: [collidingRock.position[0] - collidingRock.radius / 2, collidingRock.position[1]]
+      })
+      var newRock1 = new Rock(self.game, {
+        radius: collidingRock.radius / 2,
+        position: [collidingRock.position[0] + collidingRock.radius / 2, collidingRock.position[1]]
+      })
+    }
     self.game.removeEntity(collidingRock.id)
     self.game.removeEntity(self.id)
   }
