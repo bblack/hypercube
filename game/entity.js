@@ -28,16 +28,6 @@ var Entity = function(game, type, opts){
 Entity.prototype.tick = function(duration){
   var p = this;
 
-  // @ map edge?
-  if ((p.position[0] <= 0 && p.accel[0] < 0) ||
-      (p.position[0] >= 600 && p.accel[0] > 0)) {
-    p.accel[0] = 0;
-  }
-  if ((p.position[1] <= 0 && p.accel[1] < 0) ||
-      (p.position[1] >= 600 && p.accel[1] > 0)) {
-    p.accel[1] = 0;
-  }
-
   // calc velo
   p.velocity[0] += p.accel[0];
   p.velocity[1] += p.accel[1];
@@ -47,25 +37,11 @@ Entity.prototype.tick = function(duration){
     p.velocity[0] = p.velocity[0] * (this.maxSpeed / vAbs);
     p.velocity[1] = p.velocity[1] * (this.maxSpeed / vAbs);
   }
-  // @ map edge?
-  if ((p.position[0] <= 0 && p.velocity[0] < 0) ||
-      (p.position[0] >= 600 && p.velocity[0] > 0)) {
-    p.velocity[0] = 0;
-  }
-  if ((p.position[1] <= 0 && p.velocity[1] < 0) ||
-      (p.position[1] >= 600 && p.velocity[1] > 0)) {
-    p.velocity[1] = 0;
-  }
 
   // calc pos
   var v = p.velocity;
   p.position[0] += (v[0] * this.game.frameDuration / 1000);
   p.position[1] += (v[1] * this.game.frameDuration / 1000);
-  // @ map edge?
-  p.position[0] = Math.max(p.position[0], 0);
-  p.position[0] = Math.min(p.position[0], 600);
-  p.position[1] = Math.max(p.position[1], 0);
-  p.position[1] = Math.min(p.position[1], 600);
 }
 
 Entity.prototype.collidesWith = function(e){
