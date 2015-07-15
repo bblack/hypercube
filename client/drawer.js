@@ -37,18 +37,17 @@ var Drawer = function(game) {
     var winH = window.innerHeight;
     self.paper.setSize(winW, winH);
     if (winW > winH) {
-      self.paper.setViewBox(
-        0 - (winW / winH - 1.0)*600/2,
-        0,
-        (winW / winH)*600,
-        600)
+      this.x = 0 - (winW / winH - 1.0)*600/2;
+      this.y = 0;
+      this.w = (winW / winH)*600;
+      this.h = 600;
     } else {
-      self.paper.setViewBox(
-        0,
-        0 - (winH / winW - 1.0)*600/2,
-        600,
-        (winH / winW)*600)
+      this.x = 0;
+      this.y = 0 - (winH / winW - 1.0)*600/2;
+      this.w = 600;
+      this.h = (winH / winW)*600;
     }
+    self.paper.setViewBox(this.x, this.y, this.w, this.h);
   };
 
   this.paper = Raphael(0, 0, 600, 600);
