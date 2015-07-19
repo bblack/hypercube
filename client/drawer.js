@@ -37,17 +37,17 @@ var Drawer = function(game) {
     var winH = window.innerHeight;
     self.paper.setSize(winW, winH);
     if (winW > winH) {
-      this.x = 0 - (winW / winH - 1.0)*600/2;
-      this.y = 0;
-      this.w = (winW / winH)*600;
-      this.h = 600;
+      self.x = 0 - (winW / winH - 1.0)*600/2;
+      self.y = 0;
+      self.w = (winW / winH)*600;
+      self.h = 600;
     } else {
-      this.x = 0;
-      this.y = 0 - (winH / winW - 1.0)*600/2;
-      this.w = 600;
-      this.h = (winH / winW)*600;
+      self.x = 0;
+      self.y = 0 - (winH / winW - 1.0)*600/2;
+      self.w = 600;
+      self.h = (winH / winW)*600;
     }
-    self.paper.setViewBox(this.x, this.y, this.w, this.h);
+    self.paper.setViewBox(self.x, self.y, self.w, self.h);
   };
 
   this.paper = Raphael(0, 0, 600, 600);
@@ -79,13 +79,16 @@ var Drawer = function(game) {
     // pel.attr('stroke-width', 0);
     var gel = pel.glow({color: p.color});
     var label = this.paper.text(0, 0, '');
+    label.attr({x: 300, y: 0})
     label.attr('fill', 'white');
     label.attr('font-family', 'monospace');
+    var oor = this.paper.circle(0, 0, 10).attr({fill: p.color})
 
     this.players[p.id] = {
       pel: pel,
       gel: gel,
-      label: label
+      label: label,
+      oor: oor
     };
 
     this.updatePlayer(p);
@@ -157,8 +160,10 @@ var Drawer = function(game) {
     var pel = this.players[p.id].pel;
     var gel = this.players[p.id].gel;
     var label = this.players[p.id].label;
+    var oor = this.players[p.id].oor;
 
-    label.attr('text', p.position[0].toFixed(2) + ', ' + p.position[1].toFixed(2));
+    var labelPos = p.position[0].toFixed(2) + ', ' + p.position[1].toFixed(2);
+    label.attr('text', labelPos);
     label.attr('x', p.position[0])
     label.attr('y', 600-p.position[1])
 
@@ -171,6 +176,44 @@ var Drawer = function(game) {
 
       pel.attr('fill', p.a ? p.color : '');
     });
+
+    // for each of 4 directions, parameterize line from camera focus to player.
+    // parameter t should fall between 0 and 1 for exactly one of these if the
+    // player is off-screen (none if player is on-screen)
+    var center = [this.x + this.w / 2, this.y + this.h / 2];
+    var minCorner = [this.x, this.y];
+    var edges = {
+      left: {},
+      bottom: {},
+    };
+    edges.left.t = (minCorner[0] - center[0]) / (p.position[0] - center[0]);
+    edges.bottom.t = (minCorner[1] - center[1]) / (p.position[1] - center[1]);
+    label.attr('text', _.map(edges, function(v,k){
+      return k + ': ' + v.t.toFixed(2);
+    }).join('\n'));
+    _.each(edges, function(edge){edge.t = Math.abs(edge.t)})
+    // cross.x: point at which the line crosses an x boundary
+    var cross = {
+      x: [
+        center[0] + edges.left.t * (p.position[0] - center[0]),
+        center[1] + edges.left.t * (p.position[1] - center[1]),
+      ],
+      y: [
+        center[0] + edges.bottom.t * (p.position[0] - center[0]),
+        center[1] + edges.bottom.t * (p.position[1] - center[1]),
+      ]
+    };
+
+    // find the point where the line goes off-screen
+    var nearest = _.min(cross, function(p){
+      return Math.pow(p[0] - center[0], 2) + Math.pow(p[1] - center[1], 2);
+    });
+
+    oor.transform(Mustache.render("m1,0,0,-1,0,600t{{x}},{{y}}r{{r}},0,0", {
+      x: nearest[0],
+      y: nearest[1],
+      r: Raphael.deg(p.orientAngle)
+    }));
   }
 
   this.updateRock = function(r){
