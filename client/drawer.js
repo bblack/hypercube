@@ -82,7 +82,13 @@ var Drawer = function(game) {
     label.attr({x: 300, y: 0})
     label.attr('fill', 'white');
     label.attr('font-family', 'monospace');
-    var oor = this.paper.circle(0, 0, 10).attr({fill: p.color})
+    var oor = this.paper.set();
+    oor.push(
+      // this.paper.circle(0, 0, 20).attr('stroke', p.color),
+      // this.paper.path('M-5,-5L-2.5,0L-5,5L7.5,0Z').attr('stroke', p.color)
+      this.paper.path('M-5,5L-5,-5L15,0Z').attr({fill: p.color, stroke: null})
+    );
+
 
     this.players[p.id] = {
       pel: pel,
@@ -188,10 +194,15 @@ var Drawer = function(game) {
     };
     edges.left.t = (minCorner[0] - center[0]) / (p.position[0] - center[0]);
     edges.bottom.t = (minCorner[1] - center[1]) / (p.position[1] - center[1]);
+    if (_.any(edges, function(edge){ return Math.abs(edge.t) <= 1})) {
+      oor.show();
+    } else {
+      oor.hide();
+    }
     label.attr('text', _.map(edges, function(v,k){
       return k + ': ' + v.t.toFixed(2);
     }).join('\n'));
-    _.each(edges, function(edge){edge.t = Math.abs(edge.t)})
+    _.each(edges, function(edge){edge.t = Math.abs(edge.t)*.95})
     // cross.x: point at which the line crosses an x boundary
     var cross = {
       x: [
@@ -208,11 +219,12 @@ var Drawer = function(game) {
     var nearest = _.min(cross, function(p){
       return Math.pow(p[0] - center[0], 2) + Math.pow(p[1] - center[1], 2);
     });
-
+    var r = Raphael.deg(Math.atan((p.position[1] - center[1]) / (p.position[0] - center[0])));
+    if (p.position[0] < center[0]) r += 180;
     oor.transform(Mustache.render("m1,0,0,-1,0,600t{{x}},{{y}}r{{r}},0,0", {
       x: nearest[0],
       y: nearest[1],
-      r: Raphael.deg(p.orientAngle)
+      r: r
     }));
   }
 
