@@ -78,30 +78,6 @@ var Client = function() {
     }
   };
 
-  $("#con_in").change(function(evt){
-    var in_el = $("#con_in").get(0);
-    var out_el = $("#con_out").get(0);
-    $("<span>").css('display', 'block').text($(in_el).val()).appendTo(out_el);
-    $(in_el).val('');
-    out_el.scrollTop = out_el.scrollHeight;
-  });
-
-  $("#con_in").focusout(function(){
-    $("#con").hide();
-  });
-
-  keypress.register_combo({
-    keys: '`',
-    on_keydown: function(){
-      $('#con').toggle(500);
-      if ($('#con').is(':visible')) {
-        $('#con_in').focus();
-      }
-    },
-    prevent_default: true,
-    prevent_repeat: true
-  });
-
   var key_bindings = {
     'up': '+forward',
     'down': '+back',
