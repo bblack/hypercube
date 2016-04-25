@@ -128,28 +128,6 @@ var Drawer = function(game) {
     delete this.bullets[bid];
   }
 
-  this.addEntity = function(e){
-    if (e.type == 'player') {
-      this.addPlayer(e);
-    } else if (e.type == 'rock') {
-      this.addRock(e);
-    } else if (e.type == 'bullet') {
-      this.addBullet(e);
-    } else {
-      throw 'unrecognized entity';
-    }
-  }
-
-  this.removeEntity = function(e){
-    if (e.type == 'player') {
-      this.removePlayer(e);
-    } else if (e.type == 'rock') {
-      this.removeRock(e);
-    } else {
-      throw 'unrecognized entity';
-    }
-  }
-
   this.removePlayer = function(pid) {
     var pels = this.players[pid];
     $.each(pels, function(name, el){ el.remove(); });
