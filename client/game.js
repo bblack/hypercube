@@ -28,6 +28,7 @@ var Game = function(client) {
   this.tick = function() {
     var interpFrame = self.interpFrame();
     self.emit('tick', interpFrame);
+    // TODO: no need for game to requestAnimationFrame
     window.requestAnimationFrame(self.tick)
   }
 

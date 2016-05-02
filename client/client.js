@@ -3,10 +3,10 @@ var Client = function() {
 
   this.connect = function() {
     this.game = new Game(this);
-    this.drawer = new Drawer(this.game);
+    this.drawer = new CanvasDrawer(this, this.game);
     if (this.socket) { throw 'already connected'; }
     try { io; } catch (Exception) {
-      self.drawer.status('could not connect', 'red');
+      self.status('could not connect');
       return;
     }
     this.socket = io.connect('http://' + window.location.host);
@@ -14,11 +14,10 @@ var Client = function() {
     this.lastFewUpdates = [];
 
     this.socket.on('connect', function(){
-      self.drawer.clear();
-      self.drawer.status('connected', 'lime');
+      self.status('connected');
     })
     .on('disconnect', function(){
-      self.drawer.status('disconnected', 'orange');
+      self.status('disconnected');
     })
     .on('welcome', function(data){
       console.log('server said welcome');
@@ -105,3 +104,7 @@ var Client = function() {
     }
   });
 };
+Client.prototype.status = function(msg){
+  this.status = msg;
+}
+inherits(Client, EventEmitter2);
