@@ -1,6 +1,9 @@
 {
   "name": "hypercube",
   "version": "0.0.0",
+  "scripts": {
+    "start": "node app"
+  },
   "dependencies": {
     "express": "*",
     "mustache": "*",
