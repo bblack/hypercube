@@ -69,6 +69,9 @@ CanvasDrawer.drawMinimumEntity = function(cd, e){
     ctx.fill();
     ctx.closePath();
   }
+  ctx.font = '10pt inconsolata';
+  ctx.fillStyle = 'red';
+  ctx.fillText('UNKNOWN ENTITY', x, y);
 }
 
 CanvasDrawer.prototype.draw = function(frame){
