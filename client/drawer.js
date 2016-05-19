@@ -26,6 +26,15 @@ function vectorPlusVector(v1, v2){
 }
 
 CanvasDrawer.draw = {
+  bullet: function(cd, e){
+    var ctx = cd.canvas.getContext('2d');
+    ctx.fillStyle = 'white';
+    ctx.beginPath();
+    var coords = cd.worldCoordsToCanvasCoords(e.position);
+    ctx.arc(coords[0], coords[1], 2, 0, 2*Math.PI);
+    ctx.fill();
+    ctx.closePath();
+  },
   player: function(cd, e){
     var ctx = cd.canvas.getContext('2d');
     var model = [[0, 0], [-5, 10], [15, 0], [-5, -10], [0, 0]];
