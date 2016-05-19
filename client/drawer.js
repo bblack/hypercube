@@ -1,7 +1,13 @@
 function CanvasDrawer(client, game){
   this.client = client;
   this.game = game;
-  this.canvas = $('canvas')[0];
+  var $canvas = $('canvas');
+  this.canvas = $canvas[0];
+  $(window).on('resize', function(){
+    $canvas.attr('width', $(window).width());
+    $canvas.attr('height', $(window).height());
+  });
+  $(window).resize();
 
   game.on('tick', (frame) => {
     this.draw(frame);
