@@ -60,20 +60,8 @@ CanvasDrawer.draw = {
   player: function(cd, e){
     var ctx = cd.canvas.getContext('2d');
     var model = [[0, 0], [-5, 10], [15, 0], [-5, -10], [0, 0]];
-    var rotMatrix = [
-      [Math.cos(e.orientAngle), -Math.sin(e.orientAngle)],
-      [Math.sin(e.orientAngle), Math.cos(e.orientAngle)]
-    ];
-    ctx.beginPath();
     ctx.strokeStyle = e.color;
-    _.each(model, (vert) => {
-      var vertRot = vectorTimesMatrix(vert, rotMatrix);
-      var vertWorld = vectorPlusVector(vertRot, e.position);
-      var vertCanvas = cd.worldCoordsToCanvasCoords(vertWorld);
-      ctx.lineTo(vertCanvas[0], vertCanvas[1]);
-    });
-    ctx.stroke();
-    ctx.closePath();
+    CanvasDrawer.drawModel(cd, ctx, model, e.orientAngle, e.position);
   },
   rock: function(cd, e){
     var ctx = cd.canvas.getContext('2d');
