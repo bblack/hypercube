@@ -31,6 +31,22 @@ function vectorPlusVector(v1, v2){
   return [v1[0] + v2[0], v1[1] + v2[1]]
 }
 
+CanvasDrawer.drawModel = function(cd, ctx, modelVerts, orientAngle, pos){
+  var rotMatrix = [
+    [Math.cos(orientAngle), -Math.sin(orientAngle)],
+    [Math.sin(orientAngle), Math.cos(orientAngle)]
+  ];
+  ctx.beginPath();
+  _.each(modelVerts, (vert) => {
+    var vertRot = vectorTimesMatrix(vert, rotMatrix);
+    var vertWorld = vectorPlusVector(vertRot, pos);
+    var vertCanvas = cd.worldCoordsToCanvasCoords(vertWorld);
+    ctx.lineTo(vertCanvas[0], vertCanvas[1]);
+  });
+  ctx.closePath();
+  ctx.stroke();
+}
+
 CanvasDrawer.draw = {
   bullet: function(cd, e){
     var ctx = cd.canvas.getContext('2d');
@@ -58,6 +74,12 @@ CanvasDrawer.draw = {
     });
     ctx.stroke();
     ctx.closePath();
+  },
+  rock: function(cd, e){
+    var ctx = cd.canvas.getContext('2d');
+    var modelVerts = e.verts;
+    ctx.strokeStyle = 'white';
+    CanvasDrawer.drawModel(cd, ctx, modelVerts, 0, e.position);
   }
 };
 
