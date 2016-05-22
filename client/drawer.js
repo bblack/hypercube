@@ -8,7 +8,13 @@ function CanvasDrawer(client, game){
     $canvas.attr('height', $(window).height());
   });
   $(window).resize();
-
+  this.camera = {
+    position: [0, 0, 500],
+    // assume direction is such that rotation matrix is identity,
+    // i.e. no rotation required. world xy plane is parallel to camera xy plane.
+    d: 10, // focal distance
+    fov: Math.PI/2
+  }
   game.on('tick', (frame) => {
     this.draw(frame);
   })
@@ -16,7 +22,26 @@ function CanvasDrawer(client, game){
 }
 
 CanvasDrawer.prototype.worldCoordsToCanvasCoords = function(worldCoords){
-  return [worldCoords[0], this.canvas.height - worldCoords[1]];
+  if (worldCoords.length === 2)
+    worldCoords = worldCoords.concat(0); // z=0
+  var camSpaceCoords = _.times(3, (n) => {
+    return worldCoords[n] - this.camera.position[n];
+  });
+  // assume no rotation; i.e. cam space xy plane is parallel to screen xy plane
+  var focalPlaneCoords = [
+    (camSpaceCoords[0] * this.camera.d) / -camSpaceCoords[2],
+    (camSpaceCoords[1] * this.camera.d) / -camSpaceCoords[2]
+  ];
+  var focalPlaneHalfSize = [
+    this.camera.d * Math.tan(this.camera.fov/2),
+    this.camera.d * Math.tan(this.camera.fov/2)
+  ];
+  canvasSpaceCoords = [
+    (focalPlaneCoords[0] / focalPlaneHalfSize[0]) * (this.canvas.width / 2) + this.canvas.width / 2,
+    (focalPlaneCoords[1] / focalPlaneHalfSize[1]) * (this.canvas.height / 2) + this.canvas.height / 2
+  ];
+  canvasSpaceCoords[1]  = this.canvas.height - canvasSpaceCoords[1];
+  return canvasSpaceCoords;
 }
 
 function dot(v1, v2){
@@ -36,15 +61,18 @@ CanvasDrawer.drawModel = function(cd, ctx, modelVerts, orientAngle, pos){
     [Math.cos(orientAngle), -Math.sin(orientAngle)],
     [Math.sin(orientAngle), Math.cos(orientAngle)]
   ];
-  ctx.beginPath();
-  _.each(modelVerts, (vert) => {
-    var vertRot = vectorTimesMatrix(vert, rotMatrix);
-    var vertWorld = vectorPlusVector(vertRot, pos);
-    var vertCanvas = cd.worldCoordsToCanvasCoords(vertWorld);
-    ctx.lineTo(vertCanvas[0], vertCanvas[1]);
+  _.times(2, (n) => {
+    ctx.beginPath();
+    _.each(modelVerts, (vert) => {
+      var vertRot = vectorTimesMatrix(vert, rotMatrix);
+      var vertWorld = vectorPlusVector(vertRot, pos).concat(n * 10);
+      var vertCanvas = cd.worldCoordsToCanvasCoords(vertWorld);
+      ctx.lineTo(vertCanvas[0], vertCanvas[1]);
+    });
+    ctx.closePath();
+    ctx.stroke();
   });
-  ctx.closePath();
-  ctx.stroke();
+
 }
 
 CanvasDrawer.draw = {
